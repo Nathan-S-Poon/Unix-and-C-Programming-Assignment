@@ -8,7 +8,7 @@ menu header file
 int intInput();
 void playGame(char** displayBoard, char** answerBoard, LinkedList* missileList,
              int height, int width);
- 
+void printMissile(void* data);
 
 
 #endif 

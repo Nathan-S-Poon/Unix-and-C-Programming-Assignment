@@ -1,8 +1,8 @@
 /**************************************************************************
-*program: Main
-*
-*
-*
+*program: menu
+*Date: 26/4/2020
+*Description: contains code for UI menu and calls other functions to play
+*game. Reads in file input from command line
 *
 *
 *****************************************************************************/
@@ -19,10 +19,14 @@ int main(int argc, char* argv[])
 {
     /*variables*/
     int menuInt;
-    Board* board;
-
+    Board* boardInfo;
+    LinkedList* missList;
+    char* boardFile;
+    char* missileFile;
+    listFunc printPtr; 
     /*intialise*/
     menuInt = -1;
+    printPtr = &printMissile;  
 
     if(argc != 3)
     {
@@ -30,8 +34,14 @@ int main(int argc, char* argv[])
     }
     else
     {
-        /*allocate heap for Board*/
-         
+        /*allocate heap for Board adn for missile list*/
+        boardInfo = (Board*)malloc(sizeof(Board));
+        missList = createLinkedList();
+        /*get file inputs*/
+        boardFile = argv[1];   
+        missileFile = argv[2]; 
+        readBoardFile(boardInfo, boardFile);
+        readMissileFile(missList, missileFile);        
         /*loop until input is 0*/
         do
         {
@@ -43,6 +53,7 @@ int main(int argc, char* argv[])
                 break;
                 case 2:
                     printf("missile list\n");
+                    printLinkedList(missList, printPtr);                    
                 break;
                 case 0:
                     printf("end game\n");
@@ -96,21 +107,19 @@ void playGame(char** displayBoard, char** answerBoard, LinkedList* missileList,
 
 
 
-
-
-
-
-
-
-
-
-
-
 }
 
 
-
-
+/***********************************
+*printMissile
+*prints missile name from missile struct
+************************************/
+void printMissile(void* data)
+{
+    Missile* missile;
+    missile = (Missile*)data;
+    printf("%s\n", missile->name);
+}
 
 
 

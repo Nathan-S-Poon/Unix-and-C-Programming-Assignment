@@ -144,8 +144,8 @@ void addShipToBoard(int location[], char direction[], int length, char** board)
     /*ii or jj boolean expression will not be true unless end values change*/
     endRow = 1000;
     endCol = 1000; 
-    ii = location[0];/*col*/
-    jj = location[1];/*row*/
+    ii = location[0] - 1;/*col = location but starting at 0*/
+    jj = location[1] - 1;/*row*/
    
     board[ii][jj] = '0';/*fill index == location with first part*/
     while((ii != endCol)&&(jj != endRow)&&(length > 1))

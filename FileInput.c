@@ -84,8 +84,8 @@ Ship* createShip(char location[], char direction[], int length, char* name)
 {
     Ship* ship;
     int locationNum[2];
-    locationNum[0] = location[0];
-    locationNum[1] = location[1] - 16; 
+    locationNum[0] = location[0] - 16;
+    locationNum[1] = location[1]; 
     ship = (Ship*)malloc(sizeof(Ship));   
     ship->location[0] = locationNum[0];
     ship->location[1] = locationNum[1];  
@@ -103,20 +103,23 @@ Ship* createShip(char location[], char direction[], int length, char* name)
  ********************************************************/
 int checkBoardForError(int width, int height, char location[], 
                        char direction[], int length, char* name) 
-{   /*variables*/
-    int xNum;/*x coordinate as an int*/
+{   /*variables*/ 
     int directValid, endOfLength, fileError; 
+    int locRow, locCol;
     char heightOrWidth;
     /*intialise*/
     directValid = FALSE;
     fileError = FALSE;
-    xNum = location[0] - 16;
+    locCol = location[0] - 16;
+    locRow = location[1];
+    
     stringToUpper(direction);
+    printf("location is %d %d", locCol, locRow);
     /*check if location is within board*/
-    if((location[1] < 0)||(location[1] > height)||(xNum < 'A')
-      ||(xNum > width))
+    if((locRow < 1)||(locRow > height)||(locCol < 1)
+      ||(locCol > width)) 
     {
-        perror("location is invalid: needs to be between 1-12");
+        perror("location is invalid: needs to be within board");
         fileError = TRUE;
     } 
     /*check if driection is nsew. set to false if not*/
@@ -137,19 +140,19 @@ int checkBoardForError(int width, int height, char location[],
     switch(direction[0])
     {
         case 'N': 
-            endOfLength = location[1] + length - 1;    
+            endOfLength = locRow + length - 1;    
             heightOrWidth = 'h';
         break;
         case 'S': 
-            endOfLength = location[1] - length + 1;
+            endOfLength = locRow - length + 1;
             heightOrWidth = 'h';
         break;
         case 'E':
-            endOfLength = xNum - length + 1;
+            endOfLength = locCol - length + 1;
             heightOrWidth = 'w';
         break;
         case 'W':
-            endOfLength = xNum + length - 1;
+            endOfLength = locCol + length - 1;
             heightOrWidth = 'w';
         break;
     }

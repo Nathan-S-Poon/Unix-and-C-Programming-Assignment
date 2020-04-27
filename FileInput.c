@@ -45,40 +45,43 @@ void readBoardFile(Board* board, char* fileName)
           ((*board).height < 1)||((*board).height) > 12)
         {            
             perror("size of board needs to be between 12X12 or 1X1\n");
+            errorFile = TRUE;
         }
-     
-       do     
-       {   
-            /*initialise data as invalid, valid data will overwrite*/
-            name = "";
-            length = -1;
-            direction[0] = 'a';
-            strncpy(location, "XX", 3);                 
-            /*read in file*/
-            fgets(location, 3, f);
-            fgets(direction, 2, f);
-            fscanf(f, "%d", &length);
-            fgets(name, 50, f);
-            /*error handling*/
-            errorFile = checkBoardForError((*board).width, (*board).height, 
-            location, direction, length, name);           
-            if(errorFile == FALSE)
-            {
-                fscanf(f, "%s %s %d %s", location, direction, &length, name);          
-                /*insert values into a ship struct*/
-                ship = (Ship*)malloc(sizeof(Ship));
-                ship = createShip(location, direction, length, name);  
-                /*store ship pointer into board's linkedlist*/        
-                insertLast(board->shipList, ship);
-                (*board).numShips++;/*count ship*/
-            }
-        }while((fgets(location, 3, f) == NULL)&&(errorFile == FALSE));            
- 
-        if(ferror(f))
+        else
         {
-            perror("Error with reading file\n");
-        }
-        fclose(f);
+      
+            do     
+            {   
+                /*initialise data as invalid, valid data will overwrite*/
+                name = "";
+                length = -1;
+                direction[0] = 'a';
+                strncpy(location, "XX", 3);                 
+                /*read in file*/
+                fgets(location, 3, f);
+                fgets(direction, 2, f);
+                fscanf(f, "%d", &length);
+                fgets(name, 50, f);
+                /*error handling*/
+                errorFile = checkBoardForError((*board).width, (*board).height, 
+                location, direction, length, name);           
+                if(errorFile == FALSE)
+                {
+                    fscanf(f, "%s %s %d %s", location, direction, &length, name);          
+                    /*insert values into a ship struct*/
+                    ship = (Ship*)malloc(sizeof(Ship));
+                    ship = createShip(location, direction, length, name);  
+                    /*store ship pointer into board's linkedlist*/        
+                    insertLast(board->shipList, ship);
+                    (*board).numShips++;/*count ship*/
+                }
+             }while((fgets(location, 3, f) == NULL)&&(errorFile == FALSE));            
+         }
+         if(ferror(f))
+         {
+             perror("Error with reading file\n");
+         }
+         fclose(f);
     }
    /*Free heap*/
     free(name);
@@ -179,7 +182,7 @@ int checkBoardForError(int width, int height, char location[],
         fileError = TRUE;
     }
     /*validate ship name - ensure it is at least one character*/     
-    if((strcmp(name, "") == 0))
+    if(strcmp(name, "") == 0)
     {
         perror("name of ship needs to be at least one character");
         fileError = TRUE;

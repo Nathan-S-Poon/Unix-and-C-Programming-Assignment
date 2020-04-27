@@ -49,25 +49,30 @@ void readBoardFile(Board* board, char* fileName)
         }
         else
         {
-      
-            do     
+           do     
             {   
                 /*initialise data as invalid, valid data will overwrite*/
                 name = "";
                 length = -1;
                 direction[0] = 'a';
                 strncpy(location, "XX", 3);                 
+
+
                 /*read in file*/
-                fgets(location, 3, f);
+               /* fgets(location, 3, f);
+                printf("%s", location);
+                fflush(stdout);
                 fgets(direction, 2, f);
                 fscanf(f, "%d", &length);
-                fgets(name, 50, f);
+                fgets(name, 49, f);*/
+
+                
                 /*error handling*/
+              
                 errorFile = checkBoardForError((*board).width, (*board).height, 
                 location, direction, length, name);           
                 if(errorFile == FALSE)
                 {
-                    fscanf(f, "%s %s %d %s", location, direction, &length, name);          
                     /*insert values into a ship struct*/
                     ship = (Ship*)malloc(sizeof(Ship));
                     ship = createShip(location, direction, length, name);  

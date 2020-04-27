@@ -48,9 +48,7 @@ void readBoardFile(Board* board, char* fileName)
         }
         
         /*read in data*/
-        while((fscanf(f, "%s %s %d %s", location, direction,
-               &length, name) != EOF)&&(errorFile == FALSE));            
-        {   
+       {   
             /*if not all inputs are read in*/
             if(fscanf(f, "%s %s %d %s", location, direction, &length, name) != 4)           
             {

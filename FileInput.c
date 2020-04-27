@@ -38,7 +38,6 @@ void readBoardFile(Board* board, char* fileName)
     }
     else
     {
-                
         /*Get height and weight from first line*/
         fscanf(f, "%d,%d", &((*board).width), &((*board).height));
         /*check width and height is valid*/
@@ -51,17 +50,27 @@ void readBoardFile(Board* board, char* fileName)
         /*read in data*/
         while((fscanf(f, "%s %s %d %s", location, direction,
                &length, name) != EOF)&&(errorFile == FALSE));            
-        {  
-            fscanf(f, "%s %s %d %s", location, direction, &length, name);            
-            /*error handling*/
-            errorFile = checkBoardForError((*board).width, (*board).height, 
-            location, direction, length, name);  
-            /*insert values into a ship struct*/
-            ship = (Ship*)malloc(sizeof(Ship));
-            ship = createShip(location, direction, length, name);  
-            /*store ship pointer into board's linkedlist*/        
-            insertLast(board->shipList, ship);
-            (*board).numShips++;/*count ship*/
+        {   
+            /*if not all inputs are read in*/
+            if(fscanf(f, "%s %s %d %s", location, direction, &length, name) != 4)           
+            {
+                perror("Error: invalid file format");
+                errorFile = TRUE;
+            }           
+            else
+            {
+                fscanf(f, "%s %s %d %s", location, direction, &length, name);            
+                /*error handling*/
+                errorFile = checkBoardForError((*board).width, (*board).height, 
+                location, direction, length, name);  
+    
+                /*insert values into a ship struct*/
+                ship = (Ship*)malloc(sizeof(Ship));
+                ship = createShip(location, direction, length, name);  
+                /*store ship pointer into board's linkedlist*/        
+                insertLast(board->shipList, ship);
+                (*board).numShips++;/*count ship*/
+            }
         }
         if(ferror(f))
         {
@@ -114,14 +123,15 @@ int checkBoardForError(int width, int height, char location[],
     locRow = location[1];
     
     stringToUpper(direction);
+    printf("error checking");
     printf("location is %d %d", locCol, locRow);
     /*check if location is within board*/
     if((locRow < 1)||(locRow > height)||(locCol < 1)
       ||(locCol > width)) 
     {
-        perror("location is invalid: needs to be within board");
-        fileError = TRUE;
-    } 
+       perror("location is invalid: needs to be within board"); 
+       fileError = TRUE;
+    }
     /*check if driection is nsew. set to false if not*/
     switch(direction[0])
     {

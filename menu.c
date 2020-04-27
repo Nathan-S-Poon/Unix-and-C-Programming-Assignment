@@ -27,7 +27,6 @@ int main(int argc, char* argv[])
     /*intialise*/
     menuInt = -1;
     printPtr = &printMissile;  
-
     if(argc != 3)
     {
         perror("Error: needs three command line inputs");

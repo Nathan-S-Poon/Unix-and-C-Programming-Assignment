@@ -21,8 +21,8 @@ void readBoardFile(Board* board, char* fileName)
 {
     /*Variables*/
     FILE* f;
-    char location[2];
-    char direction[1];
+    char location[3];
+    char direction[2];
     int length;
     char* name;        
     int errorFile;
@@ -46,22 +46,25 @@ void readBoardFile(Board* board, char* fileName)
         {            
             perror("size of board needs to be between 12X12 or 1X1\n");
         }
-        
-        /*read in data*/
+     
+       do     
        {   
-            /*if not all inputs are read in*/
-            if(fscanf(f, "%s %s %d %s", location, direction, &length, name) != 4)           
+            /*initialise data as invalid, valid data will overwrite*/
+            name = "";
+            length = -1;
+            direction[0] = 'a';
+            strncpy(location, "XX", 3);                 
+            /*read in file*/
+            fgets(location, 3, f);
+            fgets(direction, 2, f);
+            fscanf(f, "%d", &length);
+            fgets(name, 50, f);
+            /*error handling*/
+            errorFile = checkBoardForError((*board).width, (*board).height, 
+            location, direction, length, name);           
+            if(errorFile == FALSE)
             {
-                perror("Error: invalid file format");
-                errorFile = TRUE;
-            }           
-            else
-            {
-                fscanf(f, "%s %s %d %s", location, direction, &length, name);            
-                /*error handling*/
-                errorFile = checkBoardForError((*board).width, (*board).height, 
-                location, direction, length, name);  
-    
+                fscanf(f, "%s %s %d %s", location, direction, &length, name);          
                 /*insert values into a ship struct*/
                 ship = (Ship*)malloc(sizeof(Ship));
                 ship = createShip(location, direction, length, name);  
@@ -69,7 +72,8 @@ void readBoardFile(Board* board, char* fileName)
                 insertLast(board->shipList, ship);
                 (*board).numShips++;/*count ship*/
             }
-        }
+        }while((fgets(location, 3, f) == NULL)&&(errorFile == FALSE));            
+ 
         if(ferror(f))
         {
             perror("Error with reading file\n");

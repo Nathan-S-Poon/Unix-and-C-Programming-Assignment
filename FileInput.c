@@ -39,7 +39,7 @@ void readBoardFile(Board* board, char* fileName)
     else
     {
         /*Get height and weight from first line*/
-        fscanf(f, "%d,%d", &((*board).width), &((*board).height));
+        fscanf(f, "%d,%d\n", &((*board).width), &((*board).height));
         /*check width and height is valid*/
         if(((*board).width < 1)||((*board).width > 12)||
           ((*board).height < 1)||((*board).height) > 12)
@@ -56,15 +56,12 @@ void readBoardFile(Board* board, char* fileName)
                 length = -1;
                 direction[0] = 'a';
                 strncpy(location, "XX", 3);                 
-
-
+ 
                 /*read in file*/
-               /* fgets(location, 3, f);
-                printf("%s", location);
-                fflush(stdout);
+                fgets(location, 3, f);  
                 fgets(direction, 2, f);
                 fscanf(f, "%d", &length);
-                fgets(name, 49, f);*/
+                fgets(name, 49, f); 
 
                 
                 /*error handling*/
@@ -80,7 +77,7 @@ void readBoardFile(Board* board, char* fileName)
                     insertLast(board->shipList, ship);
                     (*board).numShips++;/*count ship*/
                 }
-             }while((fgets(location, 3, f) == NULL)&&(errorFile == FALSE));            
+             }while((fgets(location, 3, f) != NULL)&&(errorFile == FALSE));            
          }
          if(ferror(f))
          {

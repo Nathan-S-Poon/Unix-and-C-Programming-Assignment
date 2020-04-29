@@ -4,6 +4,7 @@
 *Description: takes in two command line parameters that wil be the files to be
 *read.
 *TO DO: free void pointer? ship construct
+*test without letter to Num
 *****************************************************************************/
 #include <stdio.h>
 #include <string.h>
@@ -21,9 +22,10 @@ void readBoardFile(Board* board, char* fileName)
 {
     /*Variables*/
     FILE* f;
-    char location[3];
+    char location1[2];
     char direction[2];
-    int length;
+    int length, location2;
+    int location[2];
     char* name;        
     int errorFile;
     Ship* ship;
@@ -49,26 +51,31 @@ void readBoardFile(Board* board, char* fileName)
         }
         else
         {
-           do     
-            {   
-                /*initialise data as invalid, valid data will overwrite*/
-                name = "";
-                length = -1;
-                direction[0] = 'a';
-                strncpy(location, "XX", 3);                 
  
-                /*read in file*/
-                fgets(location, 3, f);  
+       while((fgets(location1, 2, f) != NULL) &&(errorFile == FALSE))
+       {   
+                /*read in from file*/
+                fscanf(f, "%d", &location2); 
+                fgetc(f);/*spaces*/                
                 fgets(direction, 2, f);
+                fgetc(f);
                 fscanf(f, "%d", &length);
+                fgetc(f);
                 fgets(name, 49, f); 
 
-                
-                /*error handling*/
-              
+                /*convert location*/
+                location[0] = letterToNum(location1);
+                location[1] = location2;
+               /*error handling*/
                 errorFile = checkBoardForError((*board).width, (*board).height, 
-                location, direction, length, name);           
-                if(errorFile == FALSE)
+                location, direction, length, name);  
+    
+
+                if(errorFile == TRUE)
+                {
+                    perror("file is invalid");
+                }
+                else
                 {
                     /*insert values into a ship struct*/
                     ship = (Ship*)malloc(sizeof(Ship));
@@ -77,34 +84,36 @@ void readBoardFile(Board* board, char* fileName)
                     insertLast(board->shipList, ship);
                     (*board).numShips++;/*count ship*/
                 }
-             }while((fgets(location, 3, f) != NULL)&&(errorFile == FALSE));            
+ 
+     
+
          }
+         free(ship); 
+         ship = NULL;
+ 
+    }
          if(ferror(f))
          {
              perror("Error with reading file\n");
          }
          fclose(f);
-    }
+    
    /*Free heap*/
     free(name);
-    free(ship); 
     name = NULL;
-    ship = NULL;
+    }
 }
 
 /***********************************************************************
 *create a ship
 *changes location to num
 ***********************************************************************/
-Ship* createShip(char location[], char direction[], int length, char* name)
+Ship* createShip(int location[], char direction[], int length, char* name)
 {
     Ship* ship;
-    int locationNum[2];
-    locationNum[0] = location[0] - 16;
-    locationNum[1] = location[1]; 
     ship = (Ship*)malloc(sizeof(Ship));   
-    ship->location[0] = locationNum[0];
-    ship->location[1] = locationNum[1];  
+    ship->location[0] = location[0];
+    ship->location[1] = location[1];  
     ship->direction[0] = direction[0]; 
     ship->length = length; 
     ship->name = name;
@@ -117,24 +126,19 @@ Ship* createShip(char location[], char direction[], int length, char* name)
  *checks if board inputs are valid. If invalid then return 
  *error message
  ********************************************************/
-int checkBoardForError(int width, int height, char location[], 
+int checkBoardForError(int width, int height, int location[], 
                        char direction[], int length, char* name) 
 {   /*variables*/ 
     int directValid, endOfLength, fileError; 
-    int locRow, locCol;
     char heightOrWidth;
     /*intialise*/
     directValid = FALSE;
     fileError = FALSE;
-    locCol = location[0] - 16;
-    locRow = location[1];
-    
+   
     stringToUpper(direction);
-    printf("error checking");
-    printf("location is %d %d", locCol, locRow);
     /*check if location is within board*/
-    if((locRow < 1)||(locRow > height)||(locCol < 1)
-      ||(locCol > width)) 
+    if((location[0] < 1)||(location[0] > height)||(location[1] < 1)
+      ||(location[1] > width)) 
     {
        perror("location is invalid: needs to be within board"); 
        fileError = TRUE;
@@ -157,19 +161,19 @@ int checkBoardForError(int width, int height, char location[],
     switch(direction[0])
     {
         case 'N': 
-            endOfLength = locRow + length - 1;    
+            endOfLength = location[0] + length - 1;    
             heightOrWidth = 'h';
         break;
         case 'S': 
-            endOfLength = locRow - length + 1;
+            endOfLength = location[0] - length + 1;
             heightOrWidth = 'h';
         break;
         case 'E':
-            endOfLength = locCol - length + 1;
+            endOfLength = location[1] - length + 1;
             heightOrWidth = 'w';
         break;
         case 'W':
-            endOfLength = locCol + length - 1;
+            endOfLength = location[1] + length - 1;
             heightOrWidth = 'w';
         break;
     }
@@ -302,8 +306,56 @@ void stringToUpper(char* word)
     
 }
 
-
-
+ /*****************************************
+ *convert letter to num
+ *Converts A-L to 1-12
+ *****************************************/
+int letterToNum(char letter[])
+{
+    int num;
+    num = 0;
+    switch(letter[0])
+    {
+        case 'A':
+            num = 1;
+        break;
+        case 'B':
+            num = 2;    
+        break;
+        case 'C':
+            num = 3;
+        break;
+        case 'D':
+            num = 4;
+        break;
+        case 'E':
+            num = 5;
+        break;
+        case 'F':
+            num = 6;
+        break;
+        case 'G':
+            num = 7;
+        break;
+        case 'H':
+            num = 8;
+        break;
+        case 'I':
+            num = 9;
+        break;
+        case 'J':
+            num = 10;
+        break;
+        case 'K':
+            num = 11;
+        break;
+        case 'L':
+            num = 12; 
+        break;
+ 
+    }
+    return num;
+}
 
 
 

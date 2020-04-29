@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     else
     {
         /*allocate heap for Board adn for missile list*/
-        boardInfo = (Board*)malloc(sizeof(Board));
+        boardInfo = constructBoard();
         missList = createLinkedList();
         /*get file inputs*/
         boardFile = argv[1];   

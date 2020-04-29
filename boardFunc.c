@@ -122,7 +122,7 @@ void displayBoard(char** displayArray, int height, int width)
  *constructBoard
  *creates a board struct 
  ***********************************************/
-void* constructBoard()
+Board* constructBoard()
 {
     Board* board;
     board = (Board*)malloc(sizeof(Board));

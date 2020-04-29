@@ -4,7 +4,7 @@
 
 #variables
 CC = gcc
-CFLAGS = -Wall -pedantic -ansi -Werror
+CFLAGS = -Wall -pedantic -ansi -Werror -g
 EXEC = battleShips  
 OBJ = boardFunc.o FileInput.o gameFunc.o LinkedList.o menu.o 
 

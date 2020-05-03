@@ -113,7 +113,7 @@ void insertLast(LinkedList* list, void* entry)
     }
     /*tail point to new node*/
     (*list).tail = newNode;
-     /*increment count*/
+    /*increment count*/
     (*list).count++;
 } 
 

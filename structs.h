@@ -3,6 +3,12 @@ Contains structs
 
 */
 
+#ifndef BOOLEAN
+#define BOOLEAN
+    #define FALSE 0
+    #define TRUE !FALSE
+#endif
+
 
 #ifndef STRUCTSDEF
 #define STRUCTSDEF
@@ -48,24 +54,9 @@ typedef struct Missile
 {
     MissileFunc funcPtr;
     char name[7];
-
+    char* description;
 } Missile;
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

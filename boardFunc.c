@@ -21,13 +21,9 @@
 void createGameBoard(Board* boardFile, char** boardArray)
 { 
     /*variables*/
-    int width, height;
     ListNode* curNode;
     Ship* curShip;
-    width = (*boardFile).width + 1;/*add one for axis*/
-    height = (*boardFile).height + 1;
-    create2DTemplate(boardArray, height, width); 
-      
+    
     /*iterate through shipList and add coordinates to board*/
     curNode = boardFile->shipList->head;
     while(curNode != NULL)
@@ -46,9 +42,10 @@ void createGameBoard(Board* boardFile, char** boardArray)
  *containing the locations of ships and the board
  *that is displayed to player
  ***********************************************/
-void create2DTemplate(char** array, int height, int width)
+char** create2DTemplate(int height, int width)
 {
     /*variables*/
+    char** array;
     int ii, jj;
     char xAxis;
     xAxis = 'A';  
@@ -81,7 +78,7 @@ void create2DTemplate(char** array, int height, int width)
             array[ii][jj] = '#';
         }
     }
- 
+    return array; 
 }
 
 /**********************************************
@@ -127,7 +124,7 @@ Board* constructBoard()
     Board* board;
     board = (Board*)malloc(sizeof(Board));
     board->shipList = createLinkedList();
-    (*board).destroyed = 0;
+    (*board).destroyed = FALSE;
     return board;
 }
 
@@ -142,34 +139,35 @@ void addShipToBoard(int location[], char direction[], int length, char** board)
     int ii, jj, endRow, endCol;    
 
     /*ii or jj boolean expression will not be true unless end values change*/
-    endRow = 1000;
+    endRow = 1000;/*where end of ship should be*/
     endCol = 1000; 
-    ii = location[0] - 1;/*col = location but starting at 0*/
-    jj = location[1] - 1;/*row*/
+    ii = location[0];/*col = location but starting at 0*/
+    jj = location[1];/*row*/
    
-    board[ii][jj] = '0';/*fill index == location with first part*/
+    board[jj][ii] = '0';/*fill index == location with first part*/
     while((ii != endCol)&&(jj != endRow)&&(length > 1))
     {
         switch(direction[0])
         {
             case 'N':/*exit while loop when ii or jj == end of length*/
-                endCol = location[1] - length + 1; 
+                /*-1 for length - head of ship*/
+                endRow = location[1] + length - 1; 
                 jj++;/*increment towares endCol*/
             break;
             case 'S':
-                endCol = location[1] + length - 1;
+                endRow = location[1] - length + 1;
                 jj--;
             break;
             case 'E':
-                endRow = location[0] - length + 1;
+                endCol = location[0] - length + 1;
                 ii--;
             break;
             case 'W':
-                endRow = location[0] + length - 1;
+                endCol = location[0] + length - 1;
                 ii++;
             break;
         } 
-        board[ii][jj] = '0';
+        board[jj][ii] = '0';
     }
 
 

@@ -23,7 +23,12 @@ int main(int argc, char* argv[])
     LinkedList* missList;
     char* boardFile;
     char* missileFile;
+    char** boardArray;
+    char** displayArray;
     listFunc printPtr; 
+    /*board dimensions*/
+    int height, width;
+    int* target;/*user input*/
     /*intialise*/
     menuInt = -1;
     printPtr = &printMissile;  
@@ -36,19 +41,43 @@ int main(int argc, char* argv[])
         /*allocate heap for Board adn for missile list*/
         boardInfo = constructBoard();
         missList = createLinkedList();
+        
         /*get file inputs*/
         boardFile = argv[1];   
         missileFile = argv[2]; 
         readBoardFile(boardInfo, boardFile);
-        readMissileFile(missList, missileFile);        
+        readMissileFile(missList, missileFile);  
+        width = boardInfo->width + 1;
+        height = boardInfo->height + 1;      
         /*loop until input is 0*/
         do
         {
-            menuInt = intInput();
+            menuInt = menuInput();
             switch(menuInt)
             {
                 case 1:
                     printf("Game start\n");
+                    /*create 2d array of board info*/
+                    boardArray = create2DTemplate(height, width);
+                    createGameBoard(boardInfo, boardArray); 
+                    /*create board to be displayed to player*/
+                    displayArray = create2DTemplate(height, width); 
+                       
+                    while((boardInfo->destroyed != 1)&&(missList != NULL))
+                    {   /*print display*/
+                        printf("Current board\n");
+                        displayBoard(displayArray, height, width);
+                        printf("Missiles left: %d\n", listLength(missList));
+                        printf("Current missile: %s\n", 
+                               ((Missile*)missList->head->data)->name);
+                        /*get coordinatesfrom player*/
+                        target = (int*)malloc(2*sizeof(int))
+                        targetInput(target, height width);
+                        /*apply input to board*/
+                        ((Missile*)missList->head->data)->funcPtr(displayArray,
+                        boardArray, target, boardInfo);
+                    }
+
                 break;
                 case 2:
                     printf("missile list\n");
@@ -67,11 +96,11 @@ int main(int argc, char* argv[])
 
 
 /************************************************************** 
-*intInput: Outputs 'prompt' and gets user input. If input is
+*menuInput: Outputs 'prompt' and gets user input. If input is
 *invalid then error message is added to prompt. Loops until 
 *user enters a valid input between max and min.
 ****************************************************************/
-int intInput()
+int menuInput()
 {
     int num;
     char* prompt = "1 Play the Game\n2 List all missiles\n0 Exit"; 
@@ -89,6 +118,41 @@ int intInput()
     }while((num < 0)||(num > 2));
     return num;
 }
+
+/************************************************************** 
+*target: Outputs 'prompt' and gets user input for coordinates
+of next target. If input is invalid then error message is 
+*added to prompt. Loops until user enters a valid input
+****************************************************************/
+void targetInput(int target[], int height int width)
+{
+    char* prompt = "Enter the coordinates for next target"; 
+    char* invalidRange = " Error: needs to be within row and column";
+    char* outStr;
+    char location[3];    
+
+    strncpy(outStr, prompt, 36);
+    do
+    {
+        printf("%s", outStr);
+        printf("\n");
+        scanf("%s", location);
+        strncat(invalidRange, prompt, 42);
+        
+        /*convert user input into two integers*/
+        target[1] = location[1]; 
+        target[0] = letterToNum(stringToUpper(location[0]));
+
+    }while((target[0] <= 0)||(target[0] > height)||
+           (target[1] <= 0)||(target[1] > width));
+    return num;
+}
+
+
+
+
+
+
 
 
 /****************************************************************8

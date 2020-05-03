@@ -31,8 +31,7 @@ void readBoardFile(Board* board, char* fileName)
     Ship* ship;
     /*intialise*/
     errorFile = FALSE;  
-    name = (char*)malloc(50 * sizeof(char));
-    /*Open file then check if file is null*/
+   /*Open file then check if file is null*/
     f = fopen(fileName, "r");
     if(f == NULL)
     {
@@ -54,6 +53,9 @@ void readBoardFile(Board* board, char* fileName)
  
        while((fgets(location1, 2, f) != NULL) &&(errorFile == FALSE))
        {   
+                /*malloc name*/
+                name = (char*)malloc(50 * sizeof(char));
+ 
                 /*read in from file*/
                 fscanf(f, "%d", &location2); 
                 fgetc(f);/*spaces*/                
@@ -88,9 +90,9 @@ void readBoardFile(Board* board, char* fileName)
      
 
          }
-         free(ship); 
+       /*  free(ship); 
          ship = NULL;
- 
+       */
     }
          if(ferror(f))
          {
@@ -99,8 +101,8 @@ void readBoardFile(Board* board, char* fileName)
          fclose(f);
     
    /*Free heap*/
-    free(name);
-    name = NULL;
+/*    free(name);
+    name = NULL;*/
     }
 }
 
@@ -209,14 +211,14 @@ void readMissileFile(LinkedList* list, char* fileName)
 {
     /*Variables*/
     FILE* f;
+    char* description;
     char missileFile[7];    
     int invalid;/*if 1 then file is invalid*/
     Missile* missile;
     MissileFunc funcPtr;
     /*initialise*/    
     invalid = FALSE;
-
-    /*Open file then check if file is null*/
+   /*Open file then check if file is null*/
     f = fopen(fileName, "r");
     if(f == NULL)
     {
@@ -224,30 +226,34 @@ void readMissileFile(LinkedList* list, char* fileName)
     }
     else
     {
-        while((fgets(missileFile, 7, f) != NULL)&&(invalid == FALSE))
+       while((fgets(missileFile, 7, f) != NULL)&&(invalid == FALSE))
         {
             /*get content of file and put into missile struct*/  
-            fgets(missileFile, 7, f);
-            
-            /*malloc funcPtr and missile*/
+            fgetc(f);/*next line*/
+            /*malloc description and missile*/
+            description = (char*)malloc(sizeof(char));
             missile = (Missile*)malloc(sizeof(Missile)); 
             /*assign funcPtr to function based on file input*/
             stringToUpper(missileFile);
             if(strcmp(missileFile, "SINGLE") == 0)
             {
                 funcPtr = &single;
+                description = "Hits a single tile";
             }
             else if(strcmp(missileFile, "SPLASH") == 0)
             {
                 funcPtr = &splash;
+                description = "Hits a 3x3 square";
             }
             else if(strcmp(missileFile, "V-LINE") == 0)
             {
                 funcPtr = &vLine;
+                description = "Hits an entire column";
             }
             else if(strcmp(missileFile, "H-LINE") == 0)
             {
                 funcPtr = &hLine;
+                description = "Hits adn entire row";
             }
             else/*invalid*/
             {
@@ -256,9 +262,11 @@ void readMissileFile(LinkedList* list, char* fileName)
             }   
             /*insert into missile struct then into linked list*/
             (*missile).funcPtr = funcPtr;
+            missile->description = description;
             strncpy((*missile).name, missileFile, 7);
-            list->head->data = missile;
-        }
+            insertLast(list, missile);
+        
+       }
 
 
         if(ferror(f))
@@ -266,12 +274,8 @@ void readMissileFile(LinkedList* list, char* fileName)
             perror("Error with reading file\n");
         }
         fclose(f);
-    } 
-    /*Free heap*/
-    free(missile);
-    /*free(funcPtr); Need to free??*/
-    missile = NULL;
-    funcPtr = NULL;
+    }  
+
 
 }
 

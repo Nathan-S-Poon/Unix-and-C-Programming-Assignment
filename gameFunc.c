@@ -27,8 +27,8 @@ void single(char** displayBoard, char** answerBoard, int location[],
 {
     /*variables*/
     int col, row;/*coordinates*/
-    col = location[1];
-    row = location[0];
+    col = location[0];
+    row = location[1];
     if(answerBoard[row][col] == '0')/*set to shot if it matches answers*/
     {
         displayBoard[row][col] = '0';
@@ -36,7 +36,7 @@ void single(char** displayBoard, char** answerBoard, int location[],
         /*checks if ship has been destroyed*/        
         checkShipDestroyed(board, location); 
     } 
-    else
+    else if(answerBoard[row][col] == '#')
     {
         displayBoard[row][col] = 'X';
     }
@@ -52,18 +52,17 @@ void vLine(char** displayBoard, char** answerBoard, int location[],
            Board* board)
 {
     /*variables*/
-    int col, row, ii;
-    col = location[1];
-    row = location[0]; 
-    for(ii = 1; ii < (*board).height; ii++)/*iterate through column*/
+    int col, ii;
+    col = location[0]; 
+    for(ii = 1; ii <= (*board).height; ii++)/*iterate through column*/
     {    
         if(answerBoard[ii][col] == '0')/*set to shot if it matches answers*/
         {
             displayBoard[ii][col] = '0';
-            answerBoard[row][col] = '1';
+            answerBoard[ii][col] = '1';
             checkShipDestroyed(board, location); 
         } 
-        else
+        else if(answerBoard[ii][col] == '#')
         {
             displayBoard[ii][col] = 'X';
         }
@@ -80,18 +79,17 @@ void hLine(char** displayBoard, char** answerBoard, int location[],
            Board* board)
 {
     /*variables*/
-    int row, col, ii;
-    row = location[0];
-    col = location[1];
-    for(ii = 1; ii < (*board).width; ii++)/*iterate through row*/
+    int row, ii;
+    row = location[1];
+    for(ii = 1; ii <= (*board).width; ii++)/*iterate through row*/
     {    
         if(answerBoard[row][ii] == '0')/*set to shot if it matches answers*/
         {
             displayBoard[row][ii] = '0';
-            answerBoard[row][col] = '1';
+            answerBoard[row][ii] = '1';
             checkShipDestroyed(board, location); 
         } 
-        else
+        else if(answerBoard[row][ii] == '#')
         {
             displayBoard[row][ii] = 'X';
         }
@@ -109,8 +107,8 @@ void splash(char** displayBoard, char** answerBoard, int location[],
     /*variables*/
     int ii, jj, col, row;/*coordinates*/
     int startR, startC, endR, endC;
-    col = location[1];
-    row = location[0];
+    col = location[0];
+    row = location[1];
     /*set a start and end of a matrix around location*/
     startC = col - 1;
     startR = row - 1;
@@ -134,17 +132,17 @@ void splash(char** displayBoard, char** answerBoard, int location[],
         endC--;
     }
     /*loop through affected area of board*/
-    for(ii = startR; ii < endR; ii++)
+    for(ii = startR; ii <= endR; ii++)
     {
-        for(jj = startC; jj < startR; jj++)
+        for(jj = startC; jj <= endC; jj++)
         {
             if(answerBoard[ii][jj] == '0')
             {
                 displayBoard[ii][jj] = '0';
-                answerBoard[row][col] = '1';
+                answerBoard[ii][jj] = '1';
                 checkShipDestroyed(board, location); 
             }
-            else
+            else if(answerBoard[ii][jj] == '#')
             {
                 displayBoard[ii][jj] = 'X';
             }
@@ -163,23 +161,23 @@ void checkShipDestroyed(Board* board, int location[])
     ListNode* curNode;
     Ship* curShip; 
     curNode = board->shipList->head;
-    /*while location hasn't been found*/ 
-    while(((Ship*)(curNode->data))->location != location)
+    /*while location hasn't been found and more nodes exists*/ 
+    while((((Ship*)(curNode->data))->location != location)
+         &&(curNode->next != NULL))
     {
         curNode = curNode->next;
+        if(((Ship*)(curNode->data))->location == location)
+        {
+            curShip = (Ship*)curNode->data;
+            (curShip->destroyed)++;
+            if(curShip->destroyed == curShip->length)
+            {/*if ship has been destroyed add to board and print message*/
+                printf("ship %s, has been destroyed\n", curShip->name);
+                (board->destroyed)++; 
+            }
+        }
     }
-    curShip = (Ship*)curNode->data;
-    (curShip->destroyed)++;
-    if(curShip->destroyed == curShip->length)
-    {/*if ship has been destroyed add to board and print message*/
-        printf("ship %s, has been destroyed\n", curShip->name);
-        (board->destroyed)++;
-    }
-    
-    /*free heap*/
-    free(curNode);
-    free(curShip); 
-
+   
 }
 
 

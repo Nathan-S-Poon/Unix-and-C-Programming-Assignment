@@ -18,7 +18,7 @@
 *Input constructed board pointer and filename to extract board details
 *from file and insert them into the board pointer 
 *******************************************************/
-void readBoardFile(Board* board, char* fileName)
+int readBoardFile(Board* board, char* fileName)
 {
     /*Variables*/
     FILE* f;
@@ -45,7 +45,7 @@ void readBoardFile(Board* board, char* fileName)
         if(((*board).width < 1)||((*board).width > 12)||
           ((*board).height < 1)||((*board).height) > 12)
         {            
-            perror("size of board needs to be between 12X12 or 1X1\n");
+            fprintf(stderr, "size of board needs to be between 12X12 or 1X1\n");
             errorFile = TRUE;
         }
         else
@@ -104,6 +104,7 @@ void readBoardFile(Board* board, char* fileName)
 /*    free(name);
     name = NULL;*/
     }
+    return errorFile;
 }
 
 /***********************************************************************
@@ -142,7 +143,7 @@ int checkBoardForError(int width, int height, int location[],
     if((location[0] < 1)||(location[0] > height)||(location[1] < 1)
       ||(location[1] > width)) 
     {
-       perror("location is invalid: needs to be within board"); 
+       fprintf(stderr, "location is invalid: needs to be within board"); 
        fileError = TRUE;
     }
     /*check if driection is nsew. set to false if not*/
@@ -154,7 +155,7 @@ int checkBoardForError(int width, int height, int location[],
     }
     if(directValid == FALSE)
     {
-        perror("direction is invalid: needs to be N,S,W,E");
+        fprintf(stderr, "direction is invalid: needs to be N,S,W,E");
         fileError = TRUE; 
     }
     /*length is validated - needs to be positive and fit board*/ 
@@ -181,18 +182,18 @@ int checkBoardForError(int width, int height, int location[],
     }
     if((heightOrWidth == 'h')&&((endOfLength < 1)||(endOfLength > height)))
     {
-        perror("length of boat extends past height of board");
+        fprintf(stderr, "length of boat extends past height of board");
         fileError = TRUE;
     }
     else if((heightOrWidth == 'w')&&((endOfLength < 1)||(endOfLength > width)))
     {
-        perror("length of boat extends past width of board");
+        fprintf(stderr, "length of boat extends past width of board");
         fileError = TRUE;
     }
     /*validate ship name - ensure it is at least one character*/     
     if(strcmp(name, "") == 0)
     {
-        perror("name of ship needs to be at least one character");
+        fprintf(stderr, "name of ship needs to be at least one character");
         fileError = TRUE;
     }
     return fileError;
@@ -207,7 +208,7 @@ int checkBoardForError(int width, int height, int location[],
 *file contents.
 *needs gameFunc functions
 ******************************************************/
-void readMissileFile(LinkedList* list, char* fileName)
+int readMissileFile(LinkedList* list, char* fileName)
 {
     /*Variables*/
     FILE* f;
@@ -222,7 +223,7 @@ void readMissileFile(LinkedList* list, char* fileName)
     f = fopen(fileName, "r");
     if(f == NULL)
     {
-        perror("Error: file is null");
+        fprintf(stderr, "Error: file is null");
     }
     else
     {
@@ -257,7 +258,7 @@ void readMissileFile(LinkedList* list, char* fileName)
             }
             else/*invalid*/
             {
-                perror("invalid missile file");
+                fprintf(stderr, "invalid missile file");
                 invalid = TRUE;
             }   
             /*insert into missile struct then into linked list*/
@@ -276,7 +277,7 @@ void readMissileFile(LinkedList* list, char* fileName)
         fclose(f);
     }  
 
-
+    return invalid;
 }
 
 
@@ -361,8 +362,36 @@ int letterToNum(char letter[])
     return num;
 }
 
+/******************************************
+*coordsConvert
+*converts location coordinates from char to int
+******************************************/
+/*void coordsConvert(char locationChar[], int locationInt[])
+{
+    locationInt[1] = locationChar[1] - '0';  
+
+} */
 
 
 
 
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  

@@ -4,14 +4,17 @@
 *Description: contains code for UI menu and calls other functions to play
 *game. Reads in file input from command line
 *
-*
+*When user enters 1, game will start. When game is over, user will have to 
+*option to select 1 and start the same game over. when user selects 2, a
+*list of missiles will be displayed, when User selects 3 or 4, they will 
+*be able to change the board layout or the missiles they get. 
 *****************************************************************************/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "LinkedList.h"
-#include "menu.h"
 #include "structs.h"
+#include "menu.h"
 #include "boardFunc.h"
 #include "gameFunc.h"
 #include "FileInput.h"
@@ -26,10 +29,11 @@ int main(int argc, char* argv[])
     char** boardArray;
     char** displayArray;
     listFunc printPtr; 
-    /*board dimensions*/
-    int height, width;
-    int* target;/*user input*/
-    /*intialise*/
+    /*error variables*/
+    int fileError, missError, shipError;
+    /*board dimensions and missile number*/
+    int height, width, origNumMissile; 
+   /*intialise*/
     menuInt = -1;
     printPtr = &printMissile;  
     if(argc != 3)
@@ -45,50 +49,54 @@ int main(int argc, char* argv[])
         /*get file inputs*/
         boardFile = argv[1];   
         missileFile = argv[2]; 
-        readBoardFile(boardInfo, boardFile);
-        readMissileFile(missList, missileFile);  
-        width = boardInfo->width + 1;
-        height = boardInfo->height + 1;      
-        /*loop until input is 0*/
-        do
-        {
-            menuInt = menuInput();
-            switch(menuInt)
+        fileError = readBoardFile(boardInfo, boardFile);
+        missError = readMissileFile(missList, missileFile);  
+        if((missError != 1)&&(fileError != 1))/*end if error*/
+        { 
+            origNumMissile = missList->count;/*retain orignal num of missiles*/
+            width = boardInfo->width + 1;
+            height = boardInfo->height + 1;  
+            /*create board to be displayed to player*/
+            displayArray = create2DTemplate(height, width);            
+    
+            do /*loop until input is 0*/
             {
-                case 1:
-                    printf("Game start\n");
-                    /*create 2d array of board info*/
-                    boardArray = create2DTemplate(height, width);
-                    createGameBoard(boardInfo, boardArray); 
-                    /*create board to be displayed to player*/
-                    displayArray = create2DTemplate(height, width); 
-                       
-                    while((boardInfo->destroyed != 1)&&(missList != NULL))
-                    {   /*print display*/
-                        printf("Current board\n");
-                        displayBoard(displayArray, height, width);
-                        printf("Missiles left: %d\n", listLength(missList));
-                        printf("Current missile: %s\n", 
-                               ((Missile*)missList->head->data)->name);
-                        /*get coordinatesfrom player*/
-                        target = (int*)malloc(2*sizeof(int))
-                        targetInput(target, height width);
-                        /*apply input to board*/
-                        ((Missile*)missList->head->data)->funcPtr(displayArray,
-                        boardArray, target, boardInfo);
+                /*create 2d array of board info*/
+                boardArray = create2DTemplate(height, width);
+                shipError = createGameBoard(boardInfo, boardArray); 
+                if(shipError == FALSE)/*end if error*/
+                {
+                    menuInt = menuInput();
+                    switch(menuInt)
+                    {
+                        case 1:
+                            printf("Game start\n");
+                            playGame(displayArray, boardArray, boardInfo,
+                                         missList, height, width);
+                            /*free boards*/
+                            free2DArray(boardArray, height);
+                            free2DArray(displayArray, height);
+                            resetBoard(boardInfo);
+                            missList->count = origNumMissile;
+                        break;
+                        case 2:
+                            printf("missile list\n");
+                            printLinkedList(missList, printPtr);
+                        break;
+                        case 3:
+                            printf("Create Board File\n");
+                        break;
+                        case 4:
+                            printf("Create Missile File\n");
+                        break;
+                        case 0:
+                            printf("end game\n");
+                        break;
                     }
-
-                break;
-                case 2:
-                    printf("missile list\n");
-                    printLinkedList(missList, printPtr);                    
-                break;
-                case 0:
-                    printf("end game\n");
-                break;
-            }
-        }while(menuInt != 0);
-
+                }
+            }while((menuInt != 0)&&(shipError == FALSE));
+            
+        }
     }
 
     return 0;
@@ -110,12 +118,13 @@ int menuInput()
     strncpy(outStr, prompt, 45);
     do
     {
+        strncpy(outStr, prompt, 45);
         printf("%s", outStr);
         printf("\n");
         scanf("%d", &num);
         strncat(invalid, prompt, 29);
         
-    }while((num < 0)||(num > 2));
+    }while((num < 0)||(num > 4));
     return num;
 }
 
@@ -124,34 +133,31 @@ int menuInput()
 of next target. If input is invalid then error message is 
 *added to prompt. Loops until user enters a valid input
 ****************************************************************/
-void targetInput(int target[], int height int width)
+void targetInput(int target[], int height, int width)
 {
     char* prompt = "Enter the coordinates for next target"; 
     char* invalidRange = " Error: needs to be within row and column";
     char* outStr;
-    char location[3];    
-
-    strncpy(outStr, prompt, 36);
+    char location1[2];
+    int location2;
+    outStr = (char*)malloc(sizeof(char)); 
+    strncpy(outStr, prompt, 38);  
     do
     {
         printf("%s", outStr);
         printf("\n");
-        scanf("%s", location);
+        scanf("%c%d", location1, &location2);
         strncat(invalidRange, prompt, 42);
-        
+        strncpy(outStr, invalidRange, 80);
         /*convert user input into two integers*/
-        target[1] = location[1]; 
-        target[0] = letterToNum(stringToUpper(location[0]));
-
+        target[1] = location2;
+        stringToUpper(location1); 
+        target[0] = letterToNum(location1);
+     
     }while((target[0] <= 0)||(target[0] > height)||
            (target[1] <= 0)||(target[1] > width));
-    return num;
+    free(outStr);
 }
-
-
-
-
-
 
 
 
@@ -160,15 +166,33 @@ void targetInput(int target[], int height int width)
 *player to input coordinates to shoot. Loops until either all
 *ships are shot or player runs out of missiles
 ******************************************************************/
-void playGame(char** displayBoard, char** answerBoard, LinkedList* missileList,
-             int height, int width)
+void playGame(char** displayArray, char** boardArray, Board* boardInfo,
+             LinkedList* missList, int height, int width)
 {
+    int target[2];/*user input*/
+    ListNode* nextMissile;
+    Missile* curMissile;
  
-
-
-
-
-
+    nextMissile = missList->head;/*nextMissile keeps track of current missile*/
+    while((boardInfo->destroyed != boardInfo->numShips)
+           &&(listLength(missList) > 0))
+    {
+        curMissile = (Missile*)(nextMissile->data);/*set curMissile to current*/
+        /*print display*/
+        printf("Current board\n");
+        displayBoard(displayArray, height, width);
+        printf("Missiles left: %d\n", listLength(missList));
+        printf("Current missile: %s\n", (curMissile->name));
+        /*get coordinatesfrom player*/
+        targetInput(target, height, width);
+        /*apply input to board*/
+        curMissile->funcPtr(displayArray, boardArray, target, boardInfo);       
+        (missList->count)--;/*delete a missile*/
+        nextMissile = nextMissile->next;/*get next missile*/
+ 
+    }
+    free(nextMissile);
+    free(curMissile);
 
 }
 

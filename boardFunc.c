@@ -18,22 +18,23 @@
  *createGameBoard
  *takes contents of board and puts in a 2d array
  ***********************************************/
-void createGameBoard(Board* boardFile, char** boardArray)
+int createGameBoard(Board* boardFile, char** boardArray)
 { 
     /*variables*/
     ListNode* curNode;
     Ship* curShip;
-    
+    int error;
+    error = FALSE;
     /*iterate through shipList and add coordinates to board*/
     curNode = boardFile->shipList->head;
-    while(curNode != NULL)
+    while((curNode != NULL)&&(error == FALSE))
     {     
         curShip = ((Ship*)curNode->data);       
-        addShipToBoard(curShip->location, curShip->direction,
+        error = addShipToBoard(curShip->location, curShip->direction,
         curShip->length, boardArray);            
         curNode = curNode->next;
     }
-
+    return error;
 }
 
 /**********************************************
@@ -47,9 +48,10 @@ char** create2DTemplate(int height, int width)
     /*variables*/
     char** array;
     int ii, jj;
-    char xAxis;
+    char xAxis, yAxis;
     xAxis = 'A';  
- 
+    yAxis = '1';
+  
     /*malloc 2d array of strings*/
     array = (char**)malloc(height * sizeof(char*)); 
     for(ii = 0; ii < height; ii++)
@@ -68,7 +70,8 @@ char** create2DTemplate(int height, int width)
     /*fill y axis with numbers*/
     for(ii = 1; ii < height; ii++)
     {
-        array[ii][0] = ii; 
+        array[ii][0] = yAxis;
+        yAxis++; 
     }
     
     for(ii = 1; ii < height; ii++)
@@ -124,7 +127,7 @@ Board* constructBoard()
     Board* board;
     board = (Board*)malloc(sizeof(Board));
     board->shipList = createLinkedList();
-    (*board).destroyed = FALSE;
+    (*board).destroyed = 0;
     return board;
 }
 
@@ -134,18 +137,24 @@ Board* constructBoard()
  *takes in the location, direction and length
  *of ship and adds to the board
  ***********************************************/
-void addShipToBoard(int location[], char direction[], int length, char** board)
+int addShipToBoard(int location[], char direction[], int length, char** board)
 {
-    int ii, jj, endRow, endCol;    
+    int ii, jj, endRow, endCol, error;    
 
     /*ii or jj boolean expression will not be true unless end values change*/
     endRow = 1000;/*where end of ship should be*/
     endCol = 1000; 
     ii = location[0];/*col = location but starting at 0*/
     jj = location[1];/*row*/
-   
+    error = FALSE;    
+
+    if(board[jj][ii] == '0')
+    {
+        fprintf(stderr, "error: ships intersect");
+        error = TRUE;
+    }
     board[jj][ii] = '0';/*fill index == location with first part*/
-    while((ii != endCol)&&(jj != endRow)&&(length > 1))
+    while((ii != endCol)&&(jj != endRow)&&(length > 1)&&(error == FALSE))
     {
         switch(direction[0])
         {
@@ -167,17 +176,21 @@ void addShipToBoard(int location[], char direction[], int length, char** board)
                 ii++;
             break;
         } 
+        if(board[jj][ii] == '0')
+        {
+            fprintf(stderr, "error: ships intersect");
+            error = TRUE;
+        } 
         board[jj][ii] = '0';
     }
-
-
+    return error;
 }
 
 /**********************************************
  *free2DArray
  *frees a 2DArray 
  ***********************************************/
-void free2DArray(char*** array, int length)
+void free2DArray(char** array, int length)
 {
     int ii;
     for(ii = 0; ii < length; ii++)
@@ -188,10 +201,22 @@ void free2DArray(char*** array, int length)
 
 }
 
+/*******************************************
+*resetBoard
+*sets board and ships to not destroyed 
+*******************************************/
+void resetBoard(Board* board)
+{
+    ListNode *node;
+    board->destroyed = 0;/*set to none destroyed*/
+    node = board->shipList->head;
+    while(node != NULL)
+    {
+        ((Ship*)node->data)->destroyed = 0;
+        node = node->next;
+    }
 
-
-
-
+}
 
 
 

@@ -136,29 +136,26 @@ of next target. If input is invalid then error message is
 void targetInput(int target[], int height, int width)
 {
     char prompt[38] = "Enter the coordinates for next target"; 
-    char invalidRange[82] = "Error: needs to be within row and column ";
-    char* outStr;
+    char invalidRange[81] = "Error: needs to be within row and column. ";
+    char outStr[81];
     char location1[2];
-    int location2;
-    outStr = (char*)malloc(sizeof(char)); 
+    int location2; 
     strncpy(outStr, prompt, 38);  
+    strncat(invalidRange, prompt, 38);
     do
     {
         printf("%s", outStr);
         printf("\n");
         scanf(" %c%d", location1, &location2);
-        strncat(invalidRange, prompt, 38);
-        strncpy(outStr, invalidRange, 82);
+        strncpy(outStr, invalidRange, 81);
    
         target[1] = location2;
         stringToUpper(location1); 
         target[0] = letterToNum(location1);
      
-    }while((target[0] <= 0)||(target[0] >= height)||
-           (target[1] <= 0)||(target[1] >= width));
-    free(outStr);
-
-/*    char location1[1];
+    }while((target[1] <= 0)||(target[1] >= height)||
+           (target[0] <= 0)||(target[0] >= width));
+  /*    char location1[1];
     int location2;
 
     printf("Enter the coordinates for the next target\n");

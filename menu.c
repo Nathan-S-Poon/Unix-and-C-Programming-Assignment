@@ -135,8 +135,8 @@ of next target. If input is invalid then error message is
 ****************************************************************/
 void targetInput(int target[], int height, int width)
 {
-    char* prompt = "Enter the coordinates for next target"; 
-    char* invalidRange = " Error: needs to be within row and column";
+    char prompt[38] = "Enter the coordinates for next target"; 
+    char invalidRange[82] = "Error: needs to be within row and column ";
     char* outStr;
     char location1[2];
     int location2;
@@ -146,20 +146,44 @@ void targetInput(int target[], int height, int width)
     {
         printf("%s", outStr);
         printf("\n");
-        scanf("%c%d", location1, &location2);
-        strncat(invalidRange, prompt, 42);
-        strncpy(outStr, invalidRange, 80);
-        /*convert user input into two integers*/
+        scanf(" %c%d", location1, &location2);
+        strncat(invalidRange, prompt, 38);
+        strncpy(outStr, invalidRange, 82);
+   
         target[1] = location2;
         stringToUpper(location1); 
         target[0] = letterToNum(location1);
      
-    }while((target[0] <= 0)||(target[0] > height)||
-           (target[1] <= 0)||(target[1] > width));
+    }while((target[0] <= 0)||(target[0] >= height)||
+           (target[1] <= 0)||(target[1] >= width));
     free(outStr);
+
+/*    char location1[1];
+    int location2;
+
+    printf("Enter the coordinates for the next target\n");
+    scanf(" %c%d", location1, &location2);
+    
+    target[1] = location2;
+    stringToUpper(location1); 
+    target[0] = letterToNum(location1);
+   
+    while((target[1] <= 0)||(target[1] >= height)||
+         (target[0] <= 0)||(target[0] >= width));
+    {
+        printf("Error: needs to be within row and column\n");  
+        printf("Enter the coordinates for the next target\n");
+        scanf(" %c%d", location1, &location2);
+        target[1] = location2;
+        stringToUpper(location1); 
+        target[0] = letterToNum(location1);
+   
+    } 
+  */    
+
 }
 
-
+ 
 
 /****************************************************************8
 *playGame: displays board and missiles to player and prompts 

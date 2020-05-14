@@ -7,7 +7,7 @@
 
 #ifndef GAMEFUNCTION_H
 #define GAMEFUNCTION_H
-void checkShipDestroyed(Board* board, int location[]);   
+void checkShipDestroyed(Board* board, int col, int row);   
 void single(char** displayBoard, char** answerBoard, int location[], 
            Board* board);
 void splash(char** displayBoard, char** answerBoard, int location[], 

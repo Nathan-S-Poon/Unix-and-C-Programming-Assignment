@@ -1,4 +1,4 @@
-/******************************************************************************
+/* *****************************************************************************
 *Program: BoardFunc
 *Date: 10/4/2020
 *Description: contains gane and interface functions. 
@@ -89,8 +89,8 @@ char** create2DTemplate(int height, int width)
  *outputs 2D array with borders
  *boardArray keeps data on ship locations
  *displayArray is shown to player
- ***********************************************/
-void displayBoard(char** displayArray, int height, int width)
+ ** *********************************************/
+void displayBoard(char** displayArray, char** answer, int height, int width)
 {
     int ii, jj;
     
@@ -100,7 +100,39 @@ void displayBoard(char** displayArray, int height, int width)
         for(jj = 0; jj < width; jj++)
         {   /*print | 'char' | for each*/
             printf("|");
-            printf(" %c |", displayArray[ii][jj]);    
+            /*print colour only if mono not defined*/
+            #ifndef MONO 
+            switch(displayArray[ii][jj])
+            {/*changes colour depenfing on type*/
+                case '#':/*conditional debug to find ships*/
+                    #ifdef DEBUG
+                    if(answer[ii][jj] == '0')
+                    {
+                        printf(" %s%c%s |", MAGENTA, displayArray[ii][jj], RESET);    
+                    }
+                    else
+                    {
+                        printf(" %s%c%s |", CYAN, displayArray[ii][jj], RESET);    
+                    }
+                    #endif
+                    #ifndef DEBUG
+                    printf(" %s%c%s |", CYAN, displayArray[ii][jj], RESET);   
+                    #endif      
+                break;
+                case 'X':
+                    printf(" %s%c%s |", RED, displayArray[ii][jj], RESET);    
+                break;
+                case '0':
+                    printf(" %s%c%s |", GREEN, displayArray[ii][jj], RESET);    
+                break;
+                default:
+                    printf(" %s%c%s |", YELLOW, displayArray[ii][jj], RESET);    
+                break;
+            }
+            #endif
+            #ifdef MONO
+                printf(" %c |", displayArray[ii][jj]);    
+            #endif
         }
         printf("\n");
         for(jj = 0; jj < width; jj++)
@@ -112,11 +144,13 @@ void displayBoard(char** displayArray, int height, int width)
 
 
 
-}
+} 
 /**********************************************
- *FreeBoard
- *frees board array
+ *freeShip
+ *frees ship 
  ***********************************************/
+
+
  
 /**********************************************
  *constructBoard

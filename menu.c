@@ -15,6 +15,7 @@
 #include "LinkedList.h"
 #include "structs.h"
 #include "menu.h"
+#include "writeFiles.h"
 #include "boardFunc.h"
 #include "gameFunc.h"
 #include "FileInput.h"
@@ -56,14 +57,15 @@ int main(int argc, char* argv[])
             origNumMissile = missList->count;/*retain orignal num of missiles*/
             width = boardInfo->width + 1;
             height = boardInfo->height + 1;  
-            /*create board to be displayed to player*/
-            displayArray = create2DTemplate(height, width);            
-    
+   
             do /*loop until input is 0*/
             {
+                /*create board to be displayed to player*/
+                displayArray = create2DTemplate(height, width);            
                 /*create 2d array of board info*/
                 boardArray = create2DTemplate(height, width);
                 shipError = createGameBoard(boardInfo, boardArray); 
+               
                 if(shipError == FALSE)/*end if error*/
                 {
                     menuInt = menuInput();
@@ -84,10 +86,10 @@ int main(int argc, char* argv[])
                             printLinkedList(missList, printPtr);
                         break;
                         case 3:
-                            printf("Create Board File\n");
+                            inputBoard(); 
                         break;
                         case 4:
-                            printf("Create Missile File\n");
+                            missileNameFile();   
                         break;
                         case 0:
                             printf("end game\n");
@@ -97,6 +99,10 @@ int main(int argc, char* argv[])
             }while((menuInt != 0)&&(shipError == FALSE));
             
         }
+    /*free heaps*/
+    freeLinkedList(missList, &free);
+    freeLinkedList(boardInfo->shipList, &free);
+    free(boardInfo);
     }
 
     return 0;
@@ -111,18 +117,19 @@ int main(int argc, char* argv[])
 int menuInput()
 {
     int num;
-    char* prompt = "1 Play the Game\n2 List all missiles\n0 Exit"; 
-    char invalid[29] = " error need to be 0, 1 or 2.";
-    char outStr[74];
+    char prompt[43] = "1 Play the Game\n2 List all missiles\n0 Exit"; 
+    char invalid[72] = "Error need to be 0, 1 or 2.\n";
+    char outStr[72];
     num = -1;
     strncpy(outStr, prompt, 45);
+    strncat(invalid, prompt, 72);
+ 
     do
     {
-        strncpy(outStr, prompt, 45);
         printf("%s", outStr);
         printf("\n");
         scanf("%d", &num);
-        strncat(invalid, prompt, 29);
+        strncpy(outStr, invalid, 72);
         
     }while((num < 0)||(num > 4));
     return num;
@@ -155,28 +162,6 @@ void targetInput(int target[], int height, int width)
      
     }while((target[1] <= 0)||(target[1] >= height)||
            (target[0] <= 0)||(target[0] >= width));
-  /*    char location1[1];
-    int location2;
-
-    printf("Enter the coordinates for the next target\n");
-    scanf(" %c%d", location1, &location2);
-    
-    target[1] = location2;
-    stringToUpper(location1); 
-    target[0] = letterToNum(location1);
-   
-    while((target[1] <= 0)||(target[1] >= height)||
-         (target[0] <= 0)||(target[0] >= width));
-    {
-        printf("Error: needs to be within row and column\n");  
-        printf("Enter the coordinates for the next target\n");
-        scanf(" %c%d", location1, &location2);
-        target[1] = location2;
-        stringToUpper(location1); 
-        target[0] = letterToNum(location1);
-   
-    } 
-  */    
 
 }
 
@@ -201,7 +186,7 @@ void playGame(char** displayArray, char** boardArray, Board* boardInfo,
         curMissile = (Missile*)(nextMissile->data);/*set curMissile to current*/
         /*print display*/
         printf("Current board\n");
-        displayBoard(displayArray, height, width);
+        displayBoard(displayArray, boardArray, height, width);
         printf("Missiles left: %d\n", listLength(missList));
         printf("Current missile: %s\n", (curMissile->name));
         /*get coordinatesfrom player*/
@@ -210,11 +195,12 @@ void playGame(char** displayArray, char** boardArray, Board* boardInfo,
         curMissile->funcPtr(displayArray, boardArray, target, boardInfo);       
         (missList->count)--;/*delete a missile*/
         nextMissile = nextMissile->next;/*get next missile*/
- 
+        /*If all ships destroyed*/
+        if(boardInfo->destroyed == boardInfo->numShips)
+        { 
+            printf("All ships have been destroyed\n");
+        }
     }
-    free(nextMissile);
-    free(curMissile);
-
 }
 
 

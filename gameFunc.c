@@ -34,7 +34,7 @@ void single(char** displayBoard, char** answerBoard, int location[],
         displayBoard[row][col] = '0';
         answerBoard[row][col] = '1';/*mark off as being destroyed*/
         /*checks if ship has been destroyed*/        
-        checkShipDestroyed(board, location); 
+        checkShipDestroyed(board, col, row); 
     } 
     else if(answerBoard[row][col] == '#')
     {
@@ -60,7 +60,7 @@ void vLine(char** displayBoard, char** answerBoard, int location[],
         {
             displayBoard[ii][col] = '0';
             answerBoard[ii][col] = '1';
-            checkShipDestroyed(board, location); 
+            checkShipDestroyed(board, col, ii); 
         } 
         else if(answerBoard[ii][col] == '#')
         {
@@ -87,7 +87,7 @@ void hLine(char** displayBoard, char** answerBoard, int location[],
         {
             displayBoard[row][ii] = '0';
             answerBoard[row][ii] = '1';
-            checkShipDestroyed(board, location); 
+            checkShipDestroyed(board, ii, row); 
         } 
         else if(answerBoard[row][ii] == '#')
         {
@@ -140,7 +140,7 @@ void splash(char** displayBoard, char** answerBoard, int location[],
             {
                 displayBoard[ii][jj] = '0';
                 answerBoard[ii][jj] = '1';
-                checkShipDestroyed(board, location); 
+                checkShipDestroyed(board, jj, ii); 
             }
             else if(answerBoard[ii][jj] == '#')
             {
@@ -155,38 +155,57 @@ void splash(char** displayBoard, char** answerBoard, int location[],
 *iterates for ship that has been hit
 *checks if ship has been destroyed
 *adds to num that have been destroyed
+*Input: board, column and row that was hit 
 *******************************************/
-void checkShipDestroyed(Board* board, int location[])
+void checkShipDestroyed(Board* board, int col, int row)
 {
+    int found, ii, curCol, curRow;
     ListNode* curNode;
-    Ship* curShip; 
+    Ship* curShip;
+    found = 0; 
     curNode = board->shipList->head;
     /*while location hasn't been found and more nodes exists*/ 
-    while((((Ship*)(curNode->data))->location != location)
-         &&(curNode->next != NULL))
+    while((found != 1)&&(curNode != NULL))
     {
-        curNode = curNode->next;
-        if(((Ship*)(curNode->data))->location == location)
-        {
-            curShip = (Ship*)curNode->data;
-            (curShip->destroyed)++;
-            if(curShip->destroyed == curShip->length)
-            {/*if ship has been destroyed add to board and print message*/
-                printf("ship %s, has been destroyed\n", curShip->name);
-                (board->destroyed)++; 
+        curShip = (Ship*)curNode->data;/*get the current ship*/
+        curCol = curShip->location[0];
+        curRow = curShip->location[1];    
+        ii = 1;
+        /*loop through entire ship*/
+        while((ii <= curShip->length)&&(found != 1))
+        { 
+            /*loop until every position in ship is compared*/
+            if((curCol == col)&&(curRow == row))
+            {
+                (curShip->destroyed)++;
+                if(curShip->destroyed == curShip->length)
+                {/*if ship has been destroyed add to board and print message*/
+                    printf("ship %shas been destroyed\n", curShip->name);
+                    (board->destroyed)++; 
+                }
+                found++;    
             }
+            /*get next part of the ship*/
+            switch(curShip->direction[0])
+            { 
+                case 'N': 
+                    curRow++; 
+                break;
+                case 'S':
+                    curRow--;
+                break;
+                case 'E':
+                    curCol--;
+                break;
+                case 'W':
+                    curCol++;
+                break; 
+            }
+            ii++;
         }
+        curNode = curNode->next;
     }
    
 }
-
-
-
-
-
-
-
-
-
 
 

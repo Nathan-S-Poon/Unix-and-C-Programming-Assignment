@@ -24,6 +24,7 @@ int createGameBoard(Board* boardFile, char** boardArray);
 int addShipToBoard(int location[], char direction[], int length, char** board);
 void free2DArray(char** array, int length);
 void resetBoard(Board* board);
+void freeShip(void* data);
 #endif
 
 

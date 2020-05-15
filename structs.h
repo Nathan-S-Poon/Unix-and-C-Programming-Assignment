@@ -45,7 +45,7 @@ typedef struct Board
 *takes in displayboard, gameBoard, location
 *height and width
 **************************************/
-typedef void(*MissileFunc)(char**, char**, int[], Board* board);
+typedef void(*MissileFunc)(char***, char***, int[], Board* board);
 
 /**************************************
  *missile

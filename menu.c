@@ -27,8 +27,8 @@ int main(int argc, char* argv[])
     LinkedList* missList;
     char* boardFile;
     char* missileFile;
-    char** boardArray;
-    char** displayArray;
+    char*** boardArray;
+    char*** displayArray;
     listFunc printPtr; 
     /*error variables*/
     int fileError, missError, shipError;
@@ -76,8 +76,8 @@ int main(int argc, char* argv[])
                             playGame(displayArray, boardArray, boardInfo,
                                          missList, height, width);
                             /*free boards*/
-                            free2DArray(boardArray, height);
-                            free2DArray(displayArray, height);
+                            free2DArray(boardArray, height, width);
+                            free2DArray(displayArray, height, width);
                             resetBoard(boardInfo);
                             missList->count = origNumMissile;
                         break;
@@ -101,8 +101,8 @@ int main(int argc, char* argv[])
             freeLinkedList(missList, &free);
             freeLinkedList(boardInfo->shipList, &freeShip);
             free(boardInfo);
-            free2DArray(boardArray, height);
-            free2DArray(displayArray, height);   
+            free2DArray(boardArray, height, width);
+            free2DArray(displayArray, height, width);   
         }
     }
     return 0;
@@ -182,7 +182,7 @@ void targetInput(int target[], int height, int width, Missile* curMissile)
 *player to input coordinates to shoot. Loops until either all
 *ships are shot or player runs out of missiles
 ******************************************************************/
-void playGame(char** displayArray, char** boardArray, Board* boardInfo,
+void playGame(char*** displayArray, char*** boardArray, Board* boardInfo,
              LinkedList* missList, int height, int width)
 {
     int target[2];/*user input*/

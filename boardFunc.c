@@ -18,7 +18,7 @@
  *createGameBoard
  *takes contents of board and puts in a 2d array
  ***********************************************/
-int createGameBoard(Board* boardFile, char** boardArray)
+int createGameBoard(Board* boardFile, char*** boardArray)
 { 
     /*variables*/
     ListNode* curNode;
@@ -43,34 +43,39 @@ int createGameBoard(Board* boardFile, char** boardArray)
  *containing the locations of ships and the board
  *that is displayed to player
  ***********************************************/
-char** create2DTemplate(int height, int width)
+char*** create2DTemplate(int height, int width)
 {
     /*variables*/
-    char** array;
+    char*** array;
     int ii, jj;
     char xAxis, yAxis;
     xAxis = 'A';  
     yAxis = '1';
   
     /*malloc 2d array of strings*/
-    array = (char**)malloc(height * sizeof(char*)); 
+    array = (char***)malloc(height * sizeof(char**)); 
     for(ii = 0; ii < height; ii++)
     {
-        array[ii] = (char*)malloc(width * sizeof(char));
+        array[ii] = (char**)malloc(width * sizeof(char*));
+        /*malloc string in array*/
+        for(jj = 0; jj < width; jj++)
+        {
+            array[ii][jj] = (char*)malloc(4 * sizeof(char));
+        }
     }   
-  
+   
     /*fill boardArray corner*/    
-    array[0][0] = ' ';
+    array[0][0] = " ";
     /*fill X axis with letters*/ 
     for(ii = 1; ii < width; ii++)
     {
-        array[0][ii] = xAxis; 
+        sprintf(array[0][ii], "%c", xAxis);
         xAxis++;
     }
     /*fill y axis with numbers*/
     for(ii = 1; ii < height; ii++)
     {
-        array[ii][0] = yAxis;
+        sprintf(array[ii][0], "%c", yAxis);
         yAxis++; 
     }
     
@@ -78,7 +83,7 @@ char** create2DTemplate(int height, int width)
     {
         for(jj = 1; jj < width; jj++)
         {
-            array[ii][jj] = '#';
+            array[ii][jj] = "#";
         }
     }
     return array; 
@@ -90,48 +95,52 @@ char** create2DTemplate(int height, int width)
  *boardArray keeps data on ship locations
  *displayArray is shown to player
  ** *********************************************/
-void displayBoard(char** displayArray, char** answer, int height, int width)
+void displayBoard(char*** displayArray, char*** answer, int height, int width)
 {
     int ii, jj;
-    
+    char charDisplay, charAns;
     
     for(ii = 0; ii < height; ii++)
     {
         for(jj = 0; jj < width; jj++)
-        {   /*print | 'char' | for each*/
+        {   
+            /*extract char from string*/
+            sscanf(displayArray[ii][jj], "%c", &charDisplay); 
+            sscanf(answer[ii][jj], "%c", &charAns);
+            /*print | 'char' | for each*/
             printf("|");
             /*print colour only if mono not defined*/
             #ifndef MONO 
-            switch(displayArray[ii][jj])
+            switch(charDisplay)
             {/*changes colour depenfing on type*/
                 case '#':/*conditional debug to find ships*/
                     #ifdef DEBUG
-                    if(answer[ii][jj] == '0')
+                    if(charAns == '0')
                     {
-                        printf(" %s%c%s |", MAGENTA, displayArray[ii][jj], RESET);    
+                        printf(" %s%c%s |", MAGENTA, charDisplay, RESET);    
                     }
                     else
                     {
-                        printf(" %s%c%s |", CYAN, displayArray[ii][jj], RESET);    
+                        printf(" %s%c%s |", CYAN, charDisplay, RESET);    
                     }
                     #endif
                     #ifndef DEBUG
-                    printf(" %s%c%s |", CYAN, displayArray[ii][jj], RESET);   
+                    printf(" %s%c%s |", CYAN, charDisplay, RESET);   
                     #endif      
                 break;
                 case 'X':
-                    printf(" %s%c%s |", RED, displayArray[ii][jj], RESET);    
+                    printf(" %s%c%s |", RED, charDisplay, RESET);    
                 break;
                 case '0':
-                    printf(" %s%c%s |", GREEN, displayArray[ii][jj], RESET);    
+                    printf(" %s%c%s |", GREEN, charDisplay, RESET);    
                 break;
                 default:
-                    printf(" %s%c%s |", YELLOW, displayArray[ii][jj], RESET);    
+                    printf(" %s%c%s |", YELLOW, charDisplay, RESET);    
                 break;
             }
             #endif
             #ifdef MONO
-                printf(" %c |", displayArray[ii][jj]);    
+                printf(" %c |", charDisplay);    
             #endif
         }
         printf("\n");
@@ -172,7 +181,7 @@ Board* constructBoard()
  *takes in the location, direction and length
  *of ship and adds to the board
  ***********************************************/
-int addShipToBoard(int location[], char direction[], int length, char** board)
+int addShipToBoard(int location[], char direction[], int length, char*** board)
 {
     int ii, jj, endRow, endCol, error;    
 
@@ -183,12 +192,12 @@ int addShipToBoard(int location[], char direction[], int length, char** board)
     jj = location[1];/*row*/
     error = FALSE;    
 
-    if(board[jj][ii] == '0')
+    if(strcmp(board[jj][ii], "0") == 0)
     {
         fprintf(stderr, "error: ships intersect\n");
         error = TRUE;
     }
-    board[jj][ii] = '0';/*fill index == location with first part*/
+    board[jj][ii] = "0";/*fill index == location with first part*/
     while((ii != endCol)&&(jj != endRow)&&(length > 1)&&(error == FALSE))
     {
         switch(direction[0])
@@ -211,12 +220,12 @@ int addShipToBoard(int location[], char direction[], int length, char** board)
                 ii++;
             break;
         } 
-        if(board[jj][ii] == '0')
+        if(strcmp(board[jj][ii], "0") == 0)
         {
             fprintf(stderr, "error: ships intersect");
             error = TRUE;
         } 
-        board[jj][ii] = '0';
+        board[jj][ii] = "0";
     }
     return error;
 }
@@ -225,11 +234,15 @@ int addShipToBoard(int location[], char direction[], int length, char** board)
  *free2DArray
  *frees a 2DArray 
  ***********************************************/
-void free2DArray(char** array, int length)
+void free2DArray(char*** array, int length, int width)
 {
-    int ii;
+    int ii, jj;
     for(ii = 0; ii < length; ii++)
     {
+        for(jj = 0; jj < width; jj++)
+        {
+           free(array[ii][jj]);
+        }
         free(array[ii]);
     } 
     free(array); 

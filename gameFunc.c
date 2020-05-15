@@ -22,7 +22,7 @@ MISSILE FUNCTIONS
 *hits a single tile where location
 *is
 **********************************/
-void single(char** displayBoard, char** answerBoard, int location[], 
+void single(char*** displayBoard, char*** answerBoard, int location[], 
            Board* board)
 {
     /*variables*/
@@ -48,7 +48,7 @@ void single(char** displayBoard, char** answerBoard, int location[],
 *hits an entire column
 *
 **********************************/
-void vLine(char** displayBoard, char** answerBoard, int location[], 
+void vLine(char*** displayBoard, char*** answerBoard, int location[], 
            Board* board)
 {
     /*variables*/
@@ -75,7 +75,7 @@ void vLine(char** displayBoard, char** answerBoard, int location[],
 *hits an entire row
 *
 **********************************/
-void hLine(char** displayBoard, char** answerBoard, int location[], 
+void hLine(char*** displayBoard, char*** answerBoard, int location[], 
            Board* board)
 {
     /*variables*/
@@ -101,7 +101,7 @@ void hLine(char** displayBoard, char** answerBoard, int location[],
 *hits 3x3 square around location
 *
 **********************************/
-void splash(char** displayBoard, char** answerBoard, int location[], 
+void splash(char*** displayBoard, char*** answerBoard, int location[], 
            Board* board)
 {
     /*variables*/
@@ -214,7 +214,7 @@ void checkShipDestroyed(Board* board, int col, int row)
 
 
 
-
+ 
 
 
 

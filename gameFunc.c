@@ -29,16 +29,16 @@ void single(char*** displayBoard, char*** answerBoard, int location[],
     int col, row;/*coordinates*/
     col = location[0];
     row = location[1];
-    if(answerBoard[row][col] == '0')/*set to shot if it matches answers*/
+    if(strcmp(answerBoard[row][col], "0") == 0)/*set to shot if it matches answers*/
     {
-        displayBoard[row][col] = '0';
-        answerBoard[row][col] = '1';/*mark off as being destroyed*/
+        displayBoard[row][col] = "0";
+        answerBoard[row][col] = "1";/*mark off as being destroyed*/
         /*checks if ship has been destroyed*/        
         checkShipDestroyed(board, col, row); 
     } 
-    else if(answerBoard[row][col] == '#')
+    else if(strcmp(answerBoard[row][col], "#") == 0)
     {
-        displayBoard[row][col] = 'X';
+        displayBoard[row][col] = "X";
     }
 
 }
@@ -56,15 +56,15 @@ void vLine(char*** displayBoard, char*** answerBoard, int location[],
     col = location[0]; 
     for(ii = 1; ii <= (*board).height; ii++)/*iterate through column*/
     {    
-        if(answerBoard[ii][col] == '0')/*set to shot if it matches answers*/
+        if(strcmp(answerBoard[ii][col],"0") == 0)/*set to shot if it matches answers*/
         {
-            displayBoard[ii][col] = '0';
-            answerBoard[ii][col] = '1';
+            displayBoard[ii][col] = "0";
+            answerBoard[ii][col] = "1";
             checkShipDestroyed(board, col, ii); 
         } 
-        else if(answerBoard[ii][col] == '#')
+        else if(strcmp(answerBoard[ii][col], "#") == 0)
         {
-            displayBoard[ii][col] = 'X';
+            displayBoard[ii][col] = "X";
         }
     }
 
@@ -83,15 +83,15 @@ void hLine(char*** displayBoard, char*** answerBoard, int location[],
     row = location[1];
     for(ii = 1; ii <= (*board).width; ii++)/*iterate through row*/
     {    
-        if(answerBoard[row][ii] == '0')/*set to shot if it matches answers*/
+        if(strcmp(answerBoard[row][ii], "0") == 0)/*set to shot if it matches answers*/
         {
-            displayBoard[row][ii] = '0';
-            answerBoard[row][ii] = '1';
+            displayBoard[row][ii] = "0";
+            answerBoard[row][ii] = "1";
             checkShipDestroyed(board, ii, row); 
         } 
-        else if(answerBoard[row][ii] == '#')
+        else if(strcmp(answerBoard[row][ii], "#") == 0)
         {
-            displayBoard[row][ii] = 'X';
+            displayBoard[row][ii] = "X";
         }
     }
 }
@@ -136,15 +136,15 @@ void splash(char*** displayBoard, char*** answerBoard, int location[],
     {
         for(jj = startC; jj <= endC; jj++)
         {
-            if(answerBoard[ii][jj] == '0')
+            if(strcmp(answerBoard[ii][jj], "0") == 0)
             {
-                displayBoard[ii][jj] = '0';
-                answerBoard[ii][jj] = '1';
+                displayBoard[ii][jj] = "0";
+                answerBoard[ii][jj] = "1";
                 checkShipDestroyed(board, jj, ii); 
             }
-            else if(answerBoard[ii][jj] == '#')
+            else if(strcmp(answerBoard[ii][jj], "#") == 0)
             {
-                displayBoard[ii][jj] = 'X';
+                displayBoard[ii][jj] = "X";
             }
         }
     }

@@ -60,7 +60,7 @@ char*** create2DTemplate(int height, int width)
         /*malloc string in array*/
         for(jj = 0; jj < width; jj++)
         {
-            array[ii][jj] = (char*)malloc(4 * sizeof(char));
+            array[ii][jj] = (char*)malloc(5*sizeof(char));
         }
     }   
    

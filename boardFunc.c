@@ -161,7 +161,8 @@ Board* constructBoard()
     Board* board;
     board = (Board*)malloc(sizeof(Board));
     board->shipList = createLinkedList();
-    (*board).destroyed = 0;
+    board->destroyed = 0;
+    board->numShips = 0;
     return board;
 }
 
@@ -184,7 +185,7 @@ int addShipToBoard(int location[], char direction[], int length, char** board)
 
     if(board[jj][ii] == '0')
     {
-        fprintf(stderr, "error: ships intersect");
+        fprintf(stderr, "error: ships intersect\n");
         error = TRUE;
     }
     board[jj][ii] = '0';/*fill index == location with first part*/
@@ -251,6 +252,20 @@ void resetBoard(Board* board)
     }
 
 }
+
+/*****************************
+*freeShip
+*
+******************************/
+void freeShip(void* data)
+{
+    Ship* ship;
+    ship = (Ship*)data;
+    free(ship->name);
+    free(data);
+}
+
+
 
 
 

@@ -209,3 +209,17 @@ void checkShipDestroyed(Board* board, int col, int row)
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

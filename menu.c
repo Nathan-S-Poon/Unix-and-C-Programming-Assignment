@@ -97,14 +97,14 @@ int main(int argc, char* argv[])
                     }
                 }
             }while((menuInt != 0)&&(shipError == FALSE));
-            
+             /*free heaps*/
+            freeLinkedList(missList, &free);
+            freeLinkedList(boardInfo->shipList, &freeShip);
+            free(boardInfo);
+            free2DArray(boardArray, height);
+            free2DArray(displayArray, height);   
         }
-    /*free heaps*/
-    freeLinkedList(missList, &free);
-    freeLinkedList(boardInfo->shipList, &free);
-    free(boardInfo);
     }
-
     return 0;
 }
 
@@ -140,26 +140,36 @@ int menuInput()
 of next target. If input is invalid then error message is 
 *added to prompt. Loops until user enters a valid input
 ****************************************************************/
-void targetInput(int target[], int height, int width)
+void targetInput(int target[], int height, int width, Missile* curMissile)
 {
+    char outStr[81];
     char prompt[38] = "Enter the coordinates for next target"; 
     char invalidRange[81] = "Error: needs to be within row and column. ";
-    char outStr[81];
-    char location1[2];
-    int location2; 
-    strncpy(outStr, prompt, 38);  
-    strncat(invalidRange, prompt, 38);
+    char input[5];
+    char location[2] = "Z";/*need to store letter to convert into num before
+                       passing to target*/
+    strncpy(outStr, prompt, 38);
+    strncat(invalidRange, prompt, 81);/*append error message for next loop*/      
+    /*Initialise variables*/
+    target[0] = -1;
+    target[1] = -1;
     do
     {
         printf("%s", outStr);
         printf("\n");
-        scanf(" %c%d", location1, &location2);
-        strncpy(outStr, invalidRange, 81);
-   
-        target[1] = location2;
-        stringToUpper(location1); 
-        target[0] = letterToNum(location1);
-     
+        scanf("%s", input);
+        if(strcmp(input, "help") == 0)
+        {/*print out current missile description*/
+            printf("%s\n", curMissile->description);
+            strncpy(outStr, prompt, 81);/*set to exclude error message*/       
+        }
+        else/*get next coordinate*/
+        {
+            strncpy(outStr, invalidRange, 81);
+            sscanf(input, "%c%d", location, &target[1]);
+            stringToUpper(location); 
+            target[0] = letterToNum(location);
+        }
     }while((target[1] <= 0)||(target[1] >= height)||
            (target[0] <= 0)||(target[0] >= width));
 
@@ -190,7 +200,7 @@ void playGame(char** displayArray, char** boardArray, Board* boardInfo,
         printf("Missiles left: %d\n", listLength(missList));
         printf("Current missile: %s\n", (curMissile->name));
         /*get coordinatesfrom player*/
-        targetInput(target, height, width);
+        targetInput(target, height, width, curMissile);
         /*apply input to board*/
         curMissile->funcPtr(displayArray, boardArray, target, boardInfo);       
         (missList->count)--;/*delete a missile*/

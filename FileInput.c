@@ -80,7 +80,6 @@ int readBoardFile(Board* board, char* fileName)
                 else
                 {
                     /*insert values into a ship struct*/
-                    ship = (Ship*)malloc(sizeof(Ship));
                     ship = createShip(location, direction, length, name);  
                     /*store ship pointer into board's linkedlist*/        
                     insertLast(board->shipList, ship);
@@ -90,9 +89,7 @@ int readBoardFile(Board* board, char* fileName)
      
 
          }
-       /*  free(ship); 
-         ship = NULL;
-       */
+       
     }
          if(ferror(f))
          {
@@ -100,9 +97,7 @@ int readBoardFile(Board* board, char* fileName)
          }
          fclose(f);
     
-   /*Free heap*/
-/*    free(name);
-    name = NULL;*/
+    
     }
     return errorFile;
 }
@@ -132,68 +127,63 @@ Ship* createShip(int location[], char direction[], int length, char* name)
 int checkBoardForError(int width, int height, int location[], 
                        char direction[], int length, char* name) 
 {   /*variables*/ 
-    int directValid, endOfLength, fileError; 
+    int endOfLength, fileError; 
     char heightOrWidth;
     /*intialise*/
-    directValid = FALSE;
     fileError = FALSE;
    
     stringToUpper(direction);
     /*check if location is within board*/
-    if((location[0] < 1)||(location[0] > height)||(location[1] < 1)
-      ||(location[1] > width)) 
+    if((location[1] < 1)||(location[1] > height)||(location[0] < 1)
+      ||(location[0] > width)) 
     {
-       fprintf(stderr, "location is invalid: needs to be within board"); 
+       fprintf(stderr, "location is invalid: needs to be within board\n"); 
        fileError = TRUE;
     }
-    /*check if driection is nsew. set to false if not*/
-    switch(direction[0])
-    {
-        case 'N': case 'S': case 'W': case 'E': 
-            directValid = TRUE;
-        break;
-    }
-    if(directValid == FALSE)
-    {
-        fprintf(stderr, "direction is invalid: needs to be N,S,W,E");
-        fileError = TRUE; 
-    }
     /*length is validated - needs to be positive and fit board*/ 
-    endOfLength = 0;
+    endOfLength = 0;/*position of last part of ship*/
     heightOrWidth = 'a';/*determines if ship extends height or width*/
+    length--;/*minus head of ship*/
     switch(direction[0])
     {
         case 'N': 
-            endOfLength = location[0] + length - 1;    
+            endOfLength = location[1] + length;    
             heightOrWidth = 'h';
         break;
         case 'S': 
-            endOfLength = location[0] - length + 1;
+            endOfLength = location[1] - length;
             heightOrWidth = 'h';
         break;
         case 'E':
-            endOfLength = location[1] - length + 1;
+            endOfLength = location[0] - length;
             heightOrWidth = 'w';
         break;
         case 'W':
-            endOfLength = location[1] + length - 1;
+            endOfLength = location[0] + length;
             heightOrWidth = 'w';
         break;
+        
     }
     if((heightOrWidth == 'h')&&((endOfLength < 1)||(endOfLength > height)))
     {
-        fprintf(stderr, "length of boat extends past height of board");
+        fprintf(stderr, "length of boat extends past height of board\n");
         fileError = TRUE;
     }
     else if((heightOrWidth == 'w')&&((endOfLength < 1)||(endOfLength > width)))
     {
-        fprintf(stderr, "length of boat extends past width of board");
+        fprintf(stderr, "length of boat extends past width of board\n");
         fileError = TRUE;
+    }/*if direction is none of the above then it is invalid*/
+    else if((heightOrWidth != 'h')&&(heightOrWidth != 'w'))
+    {
+        fprintf(stderr, "direction is invalid: needs to be N,S,W,E\n");
+        fileError = TRUE; 
     }
+
     /*validate ship name - ensure it is at least one character*/     
     if(strcmp(name, "") == 0)
     {
-        fprintf(stderr, "name of ship needs to be at least one character");
+        fprintf(stderr, "name of ship needs to be at least one character\n");
         fileError = TRUE;
     }
     return fileError;
@@ -231,8 +221,7 @@ int readMissileFile(LinkedList* list, char* fileName)
         {
             /*get content of file and put into missile struct*/  
             fgetc(f);/*next line*/
-            /*malloc description and missile*/
-            description = (char*)malloc(sizeof(char));
+            /*malloc missile*/
             missile = (Missile*)malloc(sizeof(Missile)); 
             /*assign funcPtr to function based on file input*/
             stringToUpper(missileFile);
@@ -254,7 +243,7 @@ int readMissileFile(LinkedList* list, char* fileName)
             else if(strcmp(missileFile, "H-LINE") == 0)
             {
                 funcPtr = &hLine;
-                description = "Hits adn entire row";
+                description = "Hits an entire row";
             }
             else/*invalid*/
             {
@@ -306,8 +295,6 @@ void stringToUpper(char* word)
         }
         ii++; 
     }
-   
-
     
 }
 

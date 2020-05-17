@@ -60,8 +60,9 @@ char*** create2DTemplate(int height, int width)
         /*malloc string in array*/
         for(jj = 0; jj < width; jj++)
         {
-            array[ii][jj] = (char*)malloc(5*sizeof(char));
+            array[ii][jj] = (char*)malloc(3*sizeof(char)); 
         }
+       
     }   
    
     /*fill boardArray corner*/    
@@ -222,7 +223,7 @@ int addShipToBoard(int location[], char direction[], int length, char*** board)
         } 
         if(strcmp(board[jj][ii], "0") == 0)
         {
-            fprintf(stderr, "error: ships intersect");
+            fprintf(stderr, "error: ships intersect\n");
             error = TRUE;
         } 
         board[jj][ii] = "0";
@@ -236,7 +237,7 @@ int addShipToBoard(int location[], char direction[], int length, char*** board)
  ***********************************************/
 void free2DArray(char*** array, int length, int width)
 {
-    int ii, jj;
+    int jj, ii;
     for(ii = 0; ii < length; ii++)
     {
         for(jj = 0; jj < width; jj++)

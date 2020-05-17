@@ -86,10 +86,10 @@ int main(int argc, char* argv[])
                             printLinkedList(missList, printPtr);
                         break;
                         case 3:
-                            inputBoard(); 
+                            writeBoard(); 
                         break;
                         case 4:
-                            missileNameFile();   
+                            writeMissile();   
                         break;
                         case 0:
                             printf("end game\n");
@@ -117,19 +117,21 @@ int main(int argc, char* argv[])
 int menuInput()
 {
     int num;
-    char prompt[43] = "1 Play the Game\n2 List all missiles\n0 Exit"; 
-    char invalid[72] = "Error need to be 0, 1 or 2.\n";
-    char outStr[72];
+    char prompt[90] = "1 Play the Game\n2 List all missiles\n"; 
+    char part2[53] = "3 create new board\n4 create new missile list\n0 Exit";
+    char invalid[162] = "Error need to be 0, 1, 2, 3 or 4.\n";
+    char outStr[162];
     num = -1;
-    strncpy(outStr, prompt, 45);
-    strncat(invalid, prompt, 72);
+    strncat(prompt, part2, 53);
+    strncpy(outStr, prompt, 90);
+    strncat(invalid, prompt, 162);
  
     do
     {
         printf("%s", outStr);
         printf("\n");
         scanf("%d", &num);
-        strncpy(outStr, invalid, 72);
+        strncpy(outStr, invalid, 162);
         
     }while((num < 0)||(num > 4));
     return num;

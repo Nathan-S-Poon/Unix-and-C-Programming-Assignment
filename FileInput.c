@@ -29,13 +29,15 @@ int readBoardFile(Board* board, char* fileName)
     char* name;        
     int errorFile;
     Ship* ship;
+    char checkNull;
     /*intialise*/
     errorFile = FALSE;  
    /*Open file then check if file is null*/
     f = fopen(fileName, "r");
     if(f == NULL)
     {
-        perror("Error: file is null");
+        fprintf(stderr, "Error: file is null\n");
+        errorFile = TRUE;
     }
     else
     {
@@ -62,20 +64,23 @@ int readBoardFile(Board* board, char* fileName)
                 fgets(direction, 2, f);
                 fgetc(f);
                 fscanf(f, "%d", &length);
-                fgetc(f);
-                fgets(name, 49, f); 
-
+                checkNull = fgetc(f); 
+                if(checkNull != '\n')
+                {
+                    fgets(name, 49, f); 
+                }
                 /*convert location*/
+                stringToUpper(location1);
                 location[0] = letterToNum(location1);
                 location[1] = location2;
-               /*error handling*/
+                /*error handling*/
                 errorFile = checkBoardForError((*board).width, (*board).height, 
                 location, direction, length, name);  
     
 
                 if(errorFile == TRUE)
                 {
-                    perror("file is invalid");
+                    perror("file is in invalid format\n");
                 }
                 else
                 {
@@ -84,12 +89,14 @@ int readBoardFile(Board* board, char* fileName)
                     /*store ship pointer into board's linkedlist*/        
                     insertLast(board->shipList, ship);
                     (*board).numShips++;/*count ship*/
-                }
- 
-     
+                }     
 
+         }/*check that there are ships*/
+         if(board->numShips == 0)
+         {
+             fprintf(stderr, "Error: no ships\n");
+             errorFile = TRUE;
          }
-       
     }
          if(ferror(f))
          {
@@ -131,7 +138,7 @@ int checkBoardForError(int width, int height, int location[],
     char heightOrWidth;
     /*intialise*/
     fileError = FALSE;
-   
+    
     stringToUpper(direction);
     /*check if location is within board*/
     if((location[1] < 1)||(location[1] > height)||(location[0] < 1)
@@ -213,11 +220,11 @@ int readMissileFile(LinkedList* list, char* fileName)
     f = fopen(fileName, "r");
     if(f == NULL)
     {
-        fprintf(stderr, "Error: file is null");
+        fprintf(stderr, "Error: file is null\n");
     }
     else
     {
-       while((fgets(missileFile, 7, f) != NULL)&&(invalid == FALSE))
+        while((fgets(missileFile, 7, f) != NULL)&&(invalid == FALSE))
         {
             /*get content of file and put into missile struct*/  
             fgetc(f);/*next line*/
@@ -247,7 +254,8 @@ int readMissileFile(LinkedList* list, char* fileName)
             }
             else/*invalid*/
             {
-                fprintf(stderr, "invalid missile file");
+                fprintf(stderr, "invalid missile file\n");
+                fprintf(stderr, "needs to be single, splash, h-line or v-line\n");
                 invalid = TRUE;
             }   
             /*insert into missile struct then into linked list*/
@@ -256,8 +264,13 @@ int readMissileFile(LinkedList* list, char* fileName)
             strncpy((*missile).name, missileFile, 7);
             insertLast(list, missile);
         
-       }
-
+        }
+        /*check that some missiles exist*/
+        if(invalid)
+        {
+            invalid = TRUE;
+            fprintf(stderr, "Error, no missiles\n");
+        }
 
         if(ferror(f))
         {

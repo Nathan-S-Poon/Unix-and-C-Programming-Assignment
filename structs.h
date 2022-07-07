@@ -1,6 +1,9 @@
 /*
 Contains structs
-
+Ship struct
+Board struct
+Missile struct
+missile function pointer
 */
 
 #ifndef BOOLEAN
@@ -18,7 +21,7 @@ Contains structs
  *****************************************/
 typedef struct Ship
 {
-    char direction[1];/*should be stored as upper case*/
+    char direction;/*should be stored as upper case*/
     int location[2];
     char* name;
     int length; 

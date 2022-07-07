@@ -1,0 +1,5 @@
+12,12
+A1 w 11 top
+L12 e 11 bottom
+A12 s 11 left
+L1 n 11 right

@@ -2,16 +2,15 @@
 *Program: FileInput
 *Date: 10/4/2020
 *Description: takes in two command line parameters that wil be the files to be
-*read.
-*TO DO: free void pointer? ship construct
-*test without letter to Num
-*****************************************************************************/
+*read. Validates files before constructing the ship structs, board structs
+*and LinkedList of missile structs. 
+******************************************************************************/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "LinkedList.h"
 #include "structs.h"
-#include "gameFunc.h"
+#include "missileFunc.h"
 #include "boardFunc.h"
 #include "FileInput.h"
 /**********************************************************
@@ -22,15 +21,16 @@ int readBoardFile(Board* board, char* fileName)
 {
     /*Variables*/
     FILE* f;
-    char location1[2];
-    char direction[2];
-    int length, location2;
-    int location[2];
+    char locationChar;
+    char direction;
+    int length, locationInt;
+    int location[2];/*final storage of location*/
     char* name;        
-    int errorFile;
+    int errorFile, errorDimensions;
     Ship* ship;
     char checkNull;
     /*intialise*/
+    errorDimensions = 0;
     errorFile = FALSE;  
    /*Open file then check if file is null*/
     f = fopen(fileName, "r");
@@ -42,9 +42,15 @@ int readBoardFile(Board* board, char* fileName)
     else
     {
         /*Get height and weight from first line*/
-        fscanf(f, "%d,%d\n", &((*board).width), &((*board).height));
+        errorDimensions = fscanf(f, "%d,%d\n", &(board->width), &(board->height));
+        /*check there is a height and width*/
+        if(errorDimensions != 2)
+        {
+            fprintf(stderr, "Board file needs a height and width\n");
+            errorFile = TRUE;
+        }
         /*check width and height is valid*/
-        if(((*board).width < 1)||((*board).width > 12)||
+        else if(((*board).width < 1)||((*board).width > 12)||
           ((*board).height < 1)||((*board).height) > 12)
         {            
             fprintf(stderr, "size of board needs to be between 12X12 or 1X1\n");
@@ -53,34 +59,32 @@ int readBoardFile(Board* board, char* fileName)
         else
         {
  
-       while((fgets(location1, 2, f) != NULL) &&(errorFile == FALSE))
-       {   
+           while((fscanf(f, "%c%d %c %d", &locationChar, &locationInt, 
+           &direction, &length) == 4)&&(!errorFile))
+           {   
                 /*malloc name*/
-                name = (char*)malloc(50 * sizeof(char));
- 
-                /*read in from file*/
-                fscanf(f, "%d", &location2); 
-                fgetc(f);/*spaces*/                
-                fgets(direction, 2, f);
-                fgetc(f);
-                fscanf(f, "%d", &length);
+                name = (char*)malloc(50 * sizeof(char)); 
+                /*read in from file*/     
                 checkNull = fgetc(f); 
+                /*get name if it is not null*/
                 if(checkNull != '\n')
                 {
                     fgets(name, 49, f); 
                 }
-                /*convert location*/
-                stringToUpper(location1);
-                location[0] = letterToNum(location1);
-                location[1] = location2;
-                /*error handling*/
+                /*convert location and make direction uppercase*/
+                locationChar = charToUpper(locationChar);
+                location[0] = letterToNum(locationChar);
+                location[1] = locationInt;
+                direction = charToUpper(direction); 
+               /*error handling*/
                 errorFile = checkBoardForError((*board).width, (*board).height, 
                 location, direction, length, name);  
     
 
-                if(errorFile == TRUE)
+                if(errorFile)
                 {
                     perror("file is in invalid format\n");
+                    free(name);
                 }
                 else
                 {
@@ -91,55 +95,40 @@ int readBoardFile(Board* board, char* fileName)
                     (*board).numShips++;/*count ship*/
                 }     
 
-         }/*check that there are ships*/
-         if(board->numShips == 0)
-         {
-             fprintf(stderr, "Error: no ships\n");
-             errorFile = TRUE;
-         }
-    }
-         if(ferror(f))
-         {
-             perror("Error with reading file\n");
-         }
-         fclose(f);
+            }/*check that there are ships*/
+            if(board->numShips == 0)
+            { 
+                fprintf(stderr, "Error: no ships\n");
+                errorFile = TRUE;
+            }
+        }
+        if(ferror(f))
+        {
+            perror("Error with reading file\n");
+            errorFile = TRUE;
+        }
+        fclose(f);
     
     
     }
     return errorFile;
 }
 
-/***********************************************************************
-*create a ship
-*changes location to num
-***********************************************************************/
-Ship* createShip(int location[], char direction[], int length, char* name)
-{
-    Ship* ship;
-    ship = (Ship*)malloc(sizeof(Ship));   
-    ship->location[0] = location[0];
-    ship->location[1] = location[1];  
-    ship->direction[0] = direction[0]; 
-    ship->length = length; 
-    ship->name = name;
-    ship->destroyed = 0;
-    return ship;
-} 
+ 
 
 /********************************************************8
  *checkBoardForError
  *checks if board inputs are valid. If invalid then return 
- *error message
+ *error message. 
  ********************************************************/
 int checkBoardForError(int width, int height, int location[], 
-                       char direction[], int length, char* name) 
+                       char direction, int length, char* name) 
 {   /*variables*/ 
     int endOfLength, fileError; 
     char heightOrWidth;
     /*intialise*/
     fileError = FALSE;
     
-    stringToUpper(direction);
     /*check if location is within board*/
     if((location[1] < 1)||(location[1] > height)||(location[0] < 1)
       ||(location[0] > width)) 
@@ -151,7 +140,7 @@ int checkBoardForError(int width, int height, int location[],
     endOfLength = 0;/*position of last part of ship*/
     heightOrWidth = 'a';/*determines if ship extends height or width*/
     length--;/*minus head of ship*/
-    switch(direction[0])
+    switch(direction)
     {
         case 'N': 
             endOfLength = location[1] + length;    
@@ -221,15 +210,14 @@ int readMissileFile(LinkedList* list, char* fileName)
     if(f == NULL)
     {
         fprintf(stderr, "Error: file is null\n");
+        invalid = TRUE;
     }
     else
     {
-        while((fgets(missileFile, 7, f) != NULL)&&(invalid == FALSE))
+        while((fgets(missileFile, 7, f) != NULL)&&(!invalid))
         {
             /*get content of file and put into missile struct*/  
             fgetc(f);/*next line*/
-            /*malloc missile*/
-            missile = (Missile*)malloc(sizeof(Missile)); 
             /*assign funcPtr to function based on file input*/
             stringToUpper(missileFile);
             if(strcmp(missileFile, "SINGLE") == 0)
@@ -257,18 +245,21 @@ int readMissileFile(LinkedList* list, char* fileName)
                 fprintf(stderr, "invalid missile file\n");
                 fprintf(stderr, "needs to be single, splash, h-line or v-line\n");
                 invalid = TRUE;
-            }   
-            /*insert into missile struct then into linked list*/
-            (*missile).funcPtr = funcPtr;
-            missile->description = description;
-            strncpy((*missile).name, missileFile, 7);
-            insertLast(list, missile);
-        
+            } 
+            if(!invalid)
+            {  
+                /*malloc missile*/
+                missile = (Missile*)malloc(sizeof(Missile)); 
+                /*insert into missile struct then into linked list*/
+                (*missile).funcPtr = funcPtr;
+                missile->description = description;
+                strncpy((*missile).name, missileFile, 7);
+                insertLast(list, missile);
+            }
         }
         /*check that some missiles exist*/
         if(invalid)
         {
-            invalid = TRUE;
             fprintf(stderr, "Error, no missiles\n");
         }
 
@@ -282,11 +273,6 @@ int readMissileFile(LinkedList* list, char* fileName)
     return invalid;
 }
 
-
- /*****************************************
- *
- *
- *****************************************/
 /********************************
  *stringToUpper - converts to uppercase
  *Copied from prac 4
@@ -311,71 +297,37 @@ void stringToUpper(char* word)
     
 }
 
- /*****************************************
- *convert letter to num
- *Converts A-L to 1-12
- *****************************************/
-int letterToNum(char letter[])
+/********************************
+ *charToUpper - converts to uppercase
+ *Copied from prac 4
+ *Used in fileInput
+ *********************************/
+char charToUpper(char word)
 {
-    int num;
-    num = 0;
-    switch(letter[0])
+    /*variables*/
+    int diff /*len*/;
+   
+    diff = 'a' - 'A';/*get diff between lower and upper*/
+    
+    if(word >= 97)
     {
-        case 'A':
-            num = 1;
-        break;
-        case 'B':
-            num = 2;    
-        break;
-        case 'C':
-            num = 3;
-        break;
-        case 'D':
-            num = 4;
-        break;
-        case 'E':
-            num = 5;
-        break;
-        case 'F':
-            num = 6;
-        break;
-        case 'G':
-            num = 7;
-        break;
-        case 'H':
-            num = 8;
-        break;
-        case 'I':
-            num = 9;
-        break;
-        case 'J':
-            num = 10;
-        break;
-        case 'K':
-            num = 11;
-        break;
-        case 'L':
-            num = 12; 
-        break;
- 
+        word = word - diff; 
     }
-    return num;
+    return word;
 }
 
-/******************************************
-*coordsConvert
-*converts location coordinates from char to int
-******************************************/
-/*void coordsConvert(char locationChar[], int locationInt[])
+ /*****************************************
+ *convert letter to num
+ *For converting A-L to 1-12
+ *****************************************/
+int letterToNum(char letter)
 {
-    locationInt[1] = locationChar[1] - '0';  
-
-} */
-
-
-
-
-
+    int num;
+    num = (int)letter;
+    num = num - 64;
+ 
+    return num;
+}
 
 
 

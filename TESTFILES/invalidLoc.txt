@@ -1,0 +1,7 @@
+12,12
+m1 E 3 ship
+@1 N 1 Ship
+A0 N 1 Ship
+M1 N 1 Ship
+M12 N 1 Ship
+A13 N 1 Ship

@@ -1,10 +1,8 @@
-/*
-LinkedList
-Description
-
-
-List stores values. Value is deleted if list is deleted
-*/
+/**********************************************************************
+*LinkedList
+*Description: Code needed to contsruct a linked list
+*Copied from Prac 6
+************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -175,7 +173,7 @@ void printLinkedList(LinkedList* list, listFunc funcPtr)
 void freeLinkedList(LinkedList* list, listFunc funcPtr)
 {
     ListNode *node, *nextNode;
-    
+    node = NULL;
     node = (*list).head;/*set node to first node*/
     while(node != NULL)
     {
@@ -193,17 +191,6 @@ void freeLinkedList(LinkedList* list, listFunc funcPtr)
  ************************************************************/
 int listLength(LinkedList* list)
 {
-/*    int length;
-    ListNode* current;
-    length = 0;
-    current = (*list).head;
-
-    while(current != NULL)
-    {
-        length++;
-        current = (*current).next;
-    }*/
-
     int length;
     length = (*list).count;
     return length;

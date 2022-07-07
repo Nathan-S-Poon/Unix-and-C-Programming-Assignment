@@ -1,11 +1,8 @@
-/* *****************************************************************************
+/******************************************************************************
 *Program: BoardFunc
 *Date: 10/4/2020
-*Description: contains gane and interface functions. 
-*Display board
-*missiles left
-*name of current missile
-*input next coordinate 
+*Description: contains functions for creating and using the board and ships
+*
 ******************************************************************************/
 #include <stdio.h>
 #include <string.h>
@@ -17,6 +14,8 @@
 /**********************************************
  *createGameBoard
  *takes contents of board and puts in a 2d array
+ *calls create2DTemplate to get board structure
+ *then fills array through addShipToBoard
  ***********************************************/
 int createGameBoard(Board* boardFile, char*** boardArray)
 { 
@@ -25,9 +24,10 @@ int createGameBoard(Board* boardFile, char*** boardArray)
     Ship* curShip;
     int error;
     error = FALSE;
+    curNode = NULL;
     /*iterate through shipList and add coordinates to board*/
     curNode = boardFile->shipList->head;
-    while((curNode != NULL)&&(error == FALSE))
+    while((curNode != NULL)&&(!error))
     {     
         curShip = ((Ship*)curNode->data);       
         error = addShipToBoard(curShip->location, curShip->direction,
@@ -47,10 +47,10 @@ char*** create2DTemplate(int height, int width)
 {
     /*variables*/
     char*** array;
-    int ii, jj;
-    char xAxis, yAxis;
+    int ii, jj, yAxis;
+    char xAxis;
     xAxis = 'A';  
-    yAxis = '1';
+    yAxis = 1;
   
     /*malloc 2d array of strings*/
     array = (char***)malloc(height * sizeof(char**)); 
@@ -60,13 +60,12 @@ char*** create2DTemplate(int height, int width)
         /*malloc string in array*/
         for(jj = 0; jj < width; jj++)
         {
-            array[ii][jj] = (char*)malloc(3*sizeof(char)); 
-        }
-       
+            array[ii][jj] = (char*)malloc(3*sizeof(char));
+        } 
     }   
    
     /*fill boardArray corner*/    
-    array[0][0] = " ";
+    strncpy(array[0][0],":)", 3);
     /*fill X axis with letters*/ 
     for(ii = 1; ii < width; ii++)
     {
@@ -76,7 +75,7 @@ char*** create2DTemplate(int height, int width)
     /*fill y axis with numbers*/
     for(ii = 1; ii < height; ii++)
     {
-        sprintf(array[ii][0], "%c", yAxis);
+        sprintf(array[ii][0], "%d", yAxis);
         yAxis++; 
     }
     
@@ -84,7 +83,7 @@ char*** create2DTemplate(int height, int width)
     {
         for(jj = 1; jj < width; jj++)
         {
-            array[ii][jj] = "#";
+            strncpy(array[ii][jj], "#", 2);
         }
     }
     return array; 
@@ -118,30 +117,30 @@ void displayBoard(char*** displayArray, char*** answer, int height, int width)
                     #ifdef DEBUG
                     if(charAns == '0')
                     {
-                        printf(" %s%c%s |", MAGENTA, charDisplay, RESET);    
+                        printf(" %s%s%s |", MAGENTA, displayArray[ii][jj], RESET);    
                     }
                     else
                     {
-                        printf(" %s%c%s |", CYAN, charDisplay, RESET);    
+                        printf(" %s%s%s |", CYAN, displayArray[ii][jj], RESET);    
                     }
                     #endif
                     #ifndef DEBUG
-                    printf(" %s%c%s |", CYAN, charDisplay, RESET);   
+                    printf(" %s%s%s |", CYAN, displayArray[ii][jj], RESET);   
                     #endif      
                 break;
                 case 'X':
-                    printf(" %s%c%s |", RED, charDisplay, RESET);    
+                    printf(" %s%s%s |", RED, displayArray[ii][jj], RESET);    
                 break;
                 case '0':
-                    printf(" %s%c%s |", GREEN, charDisplay, RESET);    
+                    printf(" %s%s%s |", GREEN, displayArray[ii][jj], RESET);    
                 break;
                 default:
-                    printf(" %s%c%s |", YELLOW, charDisplay, RESET);    
+                    printf(" %s%s%s |", YELLOW, displayArray[ii][jj], RESET);    
                 break;
             }
             #endif
             #ifdef MONO
-                printf(" %c |", charDisplay);    
+                printf(" %s |", displayArray[ii][jj]);    
             #endif
         }
         printf("\n");
@@ -155,12 +154,22 @@ void displayBoard(char*** displayArray, char*** answer, int height, int width)
 
 
 } 
-/**********************************************
- *freeShip
- *frees ship 
- ***********************************************/
-
-
+/***********************************************************************
+*create a ship
+*returns a ship pointer
+***********************************************************************/
+Ship* createShip(int location[], char direction, int length, char* name)
+{
+    Ship* ship;
+    ship = (Ship*)malloc(sizeof(Ship));   
+    ship->location[0] = location[0];
+    ship->location[1] = location[1];  
+    ship->direction = direction; 
+    ship->length = length; 
+    ship->name = name;
+    ship->destroyed = 0;
+    return ship;
+}
  
 /**********************************************
  *constructBoard
@@ -182,7 +191,7 @@ Board* constructBoard()
  *takes in the location, direction and length
  *of ship and adds to the board
  ***********************************************/
-int addShipToBoard(int location[], char direction[], int length, char*** board)
+int addShipToBoard(int location[], char direction, int length, char*** board)
 {
     int ii, jj, endRow, endCol, error;    
 
@@ -193,18 +202,18 @@ int addShipToBoard(int location[], char direction[], int length, char*** board)
     jj = location[1];/*row*/
     error = FALSE;    
 
-    if(strcmp(board[jj][ii], "0") == 0)
+    if(strcmp(board[jj][ii], "0") == 0)/*If two ship locations are on same spot*/
     {
         fprintf(stderr, "error: ships intersect\n");
         error = TRUE;
     }
-    board[jj][ii] = "0";/*fill index == location with first part*/
-    while((ii != endCol)&&(jj != endRow)&&(length > 1)&&(error == FALSE))
+    strncpy(board[jj][ii],"0", 2);/*fill index == location with first part*/
+    while((ii != endCol)&&(jj != endRow)&&(length > 1)&&(!error))
     {
-        switch(direction[0])
+        switch(direction)
         {
             case 'N':/*exit while loop when ii or jj == end of length*/
-                /*-1 for length - head of ship*/
+                /*add or take length minus the head of the ship*/
                 endRow = location[1] + length - 1; 
                 jj++;/*increment towares endCol*/
             break;
@@ -226,7 +235,7 @@ int addShipToBoard(int location[], char direction[], int length, char*** board)
             fprintf(stderr, "error: ships intersect\n");
             error = TRUE;
         } 
-        board[jj][ii] = "0";
+        strncpy(board[jj][ii], "0", 2);/*add board to position*/
     }
     return error;
 }
@@ -253,6 +262,7 @@ void free2DArray(char*** array, int length, int width)
 /*******************************************
 *resetBoard
 *sets board and ships to not destroyed 
+*after game is completed and restarted 
 *******************************************/
 void resetBoard(Board* board)
 {
@@ -269,7 +279,7 @@ void resetBoard(Board* board)
 
 /*****************************
 *freeShip
-*
+*To be used in freeLinkedList
 ******************************/
 void freeShip(void* data)
 {

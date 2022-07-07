@@ -1,0 +1,5 @@
+5,5
+a1 N 6 ship 
+a1 S 10 ship
+a1 E 1 ship
+a1 W 6 ship 

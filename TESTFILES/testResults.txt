@@ -1,0 +1,77 @@
+TEST RESULTS
+*invalid tests are done with all other variables being valid
+* yes = passed test 
+*FILE NAMES
+*board.txt - valid board.txt file
+*missile.txt - valid missile.txt file
+*invalid - empty
+*wrong missiles - invalid missile namees
+*edgeCases - maximum board size and ships on edges
+*size0 - height and width are either 0 or 13
+*invalidName - ship has no name
+*invalidLoc - location is out of bounds
+*invalidLength - ships length is out of bounds
+*invalidDirection - direction is not nswe
+*noShips - has dimensions but no ships
+
+INVALID TESTS
+Category                     RESULTS
+width = 0                    yes
+width = 13                   yes 
+height = 0                   yes
+height = 13                  yes
+
+location = A0                yes             
+location = M1                yes  
+location = M12               yes               
+location = A13               yes 
+location = @1                yes
+(valid edge boundaries)
+
+direction = a                yes
+direction = 9                yes
+
+intersecting ships           yes
+no ships                     yes
+name = ""                    yes - will count spaces as letters
+invalid file                 can't get message with non valid file
+
+
+VALID BOUNDARIES - stored in edge.txt 
+width 12
+height = 12
+*ships*
+A1 w 12 top
+L12 e 12 bottom
+A1 n 12 left
+L1 n 12 right
+
+Missiles 
+a
+b
+c
+
+TEST WriteFiles
+newBoard.txt
+10,12
+A1 W 5 ship1
+F6 N 1 ship 2
+G7 e 3 hello world
+newMissile.txt
+missile
+Single
+Splash
+h-Line
+V-lInE
+SPLAsh
+
+
+
+
+
+
+
+
+
+
+

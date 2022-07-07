@@ -20,8 +20,9 @@ header file for boardFile.c
 Board* constructBoard();
 void displayBoard(char*** displayArray, char*** answer, int height, int width);
 char*** create2DTemplate(int height, int width);
+Ship* createShip(int location[], char direction, int length, char* name);
 int createGameBoard(Board* boardFile, char*** boardArray);
-int addShipToBoard(int location[], char direction[], int length, char*** board);
+int addShipToBoard(int location[], char direction, int length, char*** board);
 void free2DArray(char*** array, int length, int width);
 void resetBoard(Board* board);
 void freeShip(void* data);
